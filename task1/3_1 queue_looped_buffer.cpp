@@ -62,6 +62,12 @@ public:
 
         return value;
     }
+private:
+    int *data_;
+    int bufferSize_;
+    int head_;
+    int tail_;
+    int curSize_;
     void ExpandBuffer(int size) {
         if (size == 4) {
             data_ = new int [size];
@@ -85,12 +91,6 @@ public:
         tail_ = bufferSize_ - 1;
         bufferSize_ = size;
     }
-private:
-    int *data_;
-    int bufferSize_;
-    int head_;
-    int tail_;
-    int curSize_;
 };
 
 void run(std::istream &in, std::ostream &out) {
