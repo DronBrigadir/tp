@@ -28,7 +28,7 @@ public:
         delete [] squad_;
     }
 
-    int whoSurvive() {
+    int WhoSurvive() {
         if (n_ == 1) {
             return 1;
         }
@@ -74,7 +74,7 @@ void run(std::istream &in, std::ostream &out) {
     }
 
     FlaviusCounting tmp = FlaviusCounting(n, k);
-    out << FlaviusCounting(n, k).whoSurvive();
+    out << FlaviusCounting(n, k).WhoSurvive();
 }
 
 void test() {

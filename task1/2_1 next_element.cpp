@@ -12,7 +12,7 @@
 
 class Find {
 public:
-    Find (std::istream &in) {
+    Find(std::istream &in) {
         int n = 0;
         int m = 0;
         in >> n >> m;
