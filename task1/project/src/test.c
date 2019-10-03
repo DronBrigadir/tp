@@ -13,8 +13,6 @@ void test(FILE *in) {
     char str[MAX_BUFFER];
 
     while (fgets(str, MAX_BUFFER, in)) {
-        printf("%s", str);
-
         Matrix *a, *b;
         char *test_name, *output;
 
