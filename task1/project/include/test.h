@@ -9,8 +9,6 @@
 #include "matrix.h"
 
 void test(FILE *in);
-int parser(char **test_name, Matrix **a, Matrix **b, char **output, char *input);
-int check_str_output (char *result, char *output);
-int check_matr_output (Matrix *result, char *output);
+int parser(char **test_name, Matrix **a, Matrix **b, Matrix **answer, char *input);
 
 #endif //TASK1_TEST_H
