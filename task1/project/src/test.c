@@ -4,7 +4,6 @@
 
 #include <malloc.h>
 #include <string.h>
-#include <stdlib.h>
 #include "test.h"
 #include "matrix.h"
 #include "utils.h"
@@ -16,28 +15,28 @@ void test(FILE *in) {
         Matrix *a, *b;
         char *test_name, *output;
 
-        int return_value = parser(&test_name, &a, &b, &output, str);
-        if (return_value == WRONG_INPUT) {
+        int parser_return_value = parser(&test_name, &a, &b, &output, str);
+        if (parser_return_value == WRONG_INPUT) {
             printf("Wrong input\n");
             return;
-        } else if (return_value == MEM_ALLOC_ERR) {
+        } else if (parser_return_value == MEM_ALLOC_ERR) {
             printf("Memory allocation error\n");
             return;
-        } else if (return_value == DEFAULT) {
+        } else if (parser_return_value == DEFAULT) {
             Matrix *result_matr;
-            return_value = matrix_multiplication(a, b, &result_matr);
+            int mult_return_value = matrix_multiplication(a, b, &result_matr);
             free_matr(a);
             free_matr(b);
-            if (return_value == MEM_ALLOC_ERR) {
+            if (mult_return_value == MEM_ALLOC_ERR) {
                 printf("Memory allocation error\n");
                 return;
-            } else if (return_value == MATR_CANNOT_BE_MULTIPLIED) {
+            } else if (mult_return_value == MATR_CANNOT_BE_MULTIPLIED) {
                 if (check_str_output("Matrix_cannot_be_multiplied\n", output) == DEFAULT) {
                     printf("%s passed\n", test_name);
                 } else {
                     printf("%s failed\n", test_name);
                 }
-            } else if (return_value == DEFAULT) {
+            } else if (mult_return_value == DEFAULT) {
                 int answer = check_matr_output(result_matr, output);
                 free_matr(result_matr);
                 if (answer == MEM_ALLOC_ERR) {
