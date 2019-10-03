@@ -78,108 +78,72 @@ int parser(char **test_name, Matrix **a, Matrix **b, Matrix **answer, char *inpu
         return WRONG_INPUT;
     }
 
-    // Получение количества строк матрицы А
-    int row_a;
-    char *tmp;
-    tmp = strtok(NULL, separator);
-    if (str_to_int(tmp, &row_a) == WRONG_INPUT) {
+    int get_data_return_value = get_matrix_data(a);
+    if (get_data_return_value == WRONG_INPUT) {
         return WRONG_INPUT;
-    }
-
-    // Получение количества столбцов матрицы А
-    int col_a;
-    tmp = strtok(NULL, separator);
-    if (str_to_int(tmp, &col_a) == WRONG_INPUT) {
-        return WRONG_INPUT;
-    }
-
-    // Выделение памяти для матрицы А
-    if (init_matr(a, row_a, col_a) == MEM_ALLOC_ERR) {
+    } else if (get_data_return_value == MEM_ALLOC_ERR) {
         return MEM_ALLOC_ERR;
     }
 
-    // Получение данных для матрицы А
-    for (size_t i = 0; i < (*a)->num_row; i++) {
-        for (size_t j = 0; j < (*a)->num_col; j++) {
-            tmp = strtok(NULL, separator);
-            if (str_to_int(tmp, &(*a)->data[i][j]) == WRONG_INPUT) {
-                free_matr(*a);
-                return WRONG_INPUT;
-            }
-        }
-    }
-
-    // Получение количества строк для матрицы В
-    int row_b;
-    tmp = strtok(NULL, separator);
-    if (str_to_int(tmp, &row_b) == WRONG_INPUT) {
+    get_data_return_value = get_matrix_data(b);
+    if (get_data_return_value == WRONG_INPUT) {
+        free_matr(*a);
+        return WRONG_INPUT;
+    } else if (get_data_return_value == MEM_ALLOC_ERR) {
         free_matr(*a);
         return WRONG_INPUT;
     }
 
-    // Получение количества столбцов для матрицы В
-    int col_b;
-    tmp = strtok(NULL, separator);
-    if (str_to_int(tmp, &col_b) == WRONG_INPUT) {
-        free_matr(*a);
-        return WRONG_INPUT;
-    }
-
-    // Выделение памяти для матрицы В
-    if (init_matr(b, row_b, col_b) == MEM_ALLOC_ERR) {
-        free_matr(*a);
-        return MEM_ALLOC_ERR;
-    }
-
-    // Получение данных для матрицы В
-    for (size_t i = 0; i < (*b)->num_row; i++) {
-        for (size_t j = 0; j < (*b)->num_col; j++) {
-            tmp = strtok(NULL, separator);
-            if (str_to_int(tmp, &(*b)->data[i][j]) == WRONG_INPUT) {
-                free_matr(*a);
-                free_matr(*b);
-                return WRONG_INPUT;
-            }
-        }
-    }
-
-    // Получение количества строк матрицы ответа
-    int row_answer;
-    tmp = strtok(NULL, separator);
-    if (str_to_int(tmp, &row_answer) == WRONG_INPUT) {
+    get_data_return_value = get_matrix_data(answer);
+    if (get_data_return_value == WRONG_INPUT) {
         free_matr(*a);
         free_matr(*b);
         return WRONG_INPUT;
-    }
-
-    if (row_answer == 0) {
+    } else if (get_data_return_value == MEM_ALLOC_ERR) {
+        free_matr(*a);
+        free_matr(*b);
+        return MEM_ALLOC_ERR;
+    } else if (get_data_return_value == MATR_CANNOT_BE_MULTIPLIED) {
         return MATR_CANNOT_BE_MULTIPLIED;
     }
 
-    // Получение количества столбцов матрицы ответа
-    int col_answer;
+    return DEFAULT;
+}
+
+int get_matrix_data(Matrix **matr) {
+    char *separator = " |";
+
+    // Получение количества строк матрицы
+    int row;
+    char *tmp;
     tmp = strtok(NULL, separator);
-    if (str_to_int(tmp, &col_answer) == WRONG_INPUT) {
-        free_matr(*a);
-        free_matr(*b);
+    if (str_to_int(tmp, &row) == WRONG_INPUT) {
         return WRONG_INPUT;
     }
 
-    // Выделение памяти для матрицы ответа
-    if (init_matr(answer, row_answer, col_answer) == MEM_ALLOC_ERR) {
-        free_matr(*a);
-        free_matr(*b);
+    // Если в тесте в ответе '0', то это значит, что матрицы не могут быть умножены
+    if (row == 0) {
+        return MATR_CANNOT_BE_MULTIPLIED;
+    }
+
+    // Получение количества столбцов матрицы
+    int col;
+    tmp = strtok(NULL, separator);
+    if (str_to_int(tmp, &col) == WRONG_INPUT) {
+        return WRONG_INPUT;
+    }
+
+    // Выделение памяти для матрицы
+    if (init_matr(matr, row, col) == MEM_ALLOC_ERR) {
         return MEM_ALLOC_ERR;
     }
 
-    // Получение данных для матрицы ответа
-    for (size_t i = 0; i < (*answer)->num_row; i++) {
-        for (size_t j = 0; j < (*answer)->num_col; j++) {
+    // Получение данных для матрицы
+    for (size_t i = 0; i < (*matr)->num_row; i++) {
+        for (size_t j = 0; j < (*matr)->num_col; j++) {
             tmp = strtok(NULL, separator);
-            if (str_to_int(tmp, &(*answer)->data[i][j]) == WRONG_INPUT) {
-                free_matr(*a);
-                free_matr(*b);
-                free_matr(*answer);
+            if (str_to_int(tmp, &(*matr)->data[i][j]) == WRONG_INPUT) {
+                free_matr(*matr);
                 return WRONG_INPUT;
             }
         }
