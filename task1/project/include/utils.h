@@ -13,7 +13,7 @@
 // в конце также нужно добавить '|'),
 // где С - матрица, полученная в результате умножения А и В
 
-#define TEST_FILE_PATH "/home/andrey/tp/task1/test_file.txt"
+#define TEST_FILE_PATH "/home/andrey/tp/task1/project/tests/test.txt"
 #define MAX_BUFFER 1024
 #define WRONG_INPUT -1
 #define MATR_CANNOT_BE_MULTIPLIED -2
