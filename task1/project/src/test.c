@@ -90,18 +90,13 @@ int parser(char **test_name, Matrix **a, Matrix **b, char **output, char *input)
         return MEM_ALLOC_ERR;
     }
 
-    // Получение данных для матрицы А TODO(): make function, that will read
+    // Получение данных для матрицы А
     for (size_t i = 0; i < (*a)->num_row; i++) {
         for (size_t j = 0; j < (*a)->num_col; j++) {
             tmp = strtok(NULL, separator);
-            if (tmp == NULL) {
+            if (str_to_int(tmp, &(*a)->data[i][j]) == WRONG_INPUT) {
                 free_matr(*a);
                 return WRONG_INPUT;
-            } else {
-                if (str_to_int(tmp, &(*a)->data[i][j]) == WRONG_INPUT) {
-                    free_matr(*a);
-                    return WRONG_INPUT;
-                }
             }
         }
     }
@@ -132,16 +127,10 @@ int parser(char **test_name, Matrix **a, Matrix **b, char **output, char *input)
     for (size_t i = 0; i < (*b)->num_row; i++) {
         for (size_t j = 0; j < (*b)->num_col; j++) {
             tmp = strtok(NULL, separator);
-            if (tmp == NULL) {
+            if (str_to_int(tmp, &(*b)->data[i][j]) == WRONG_INPUT) {
                 free_matr(*a);
                 free_matr(*b);
                 return WRONG_INPUT;
-            } else {
-                if (str_to_int(tmp, &(*b)->data[i][j]) == WRONG_INPUT) {
-                    free_matr(*a);
-                    free_matr(*b);
-                    return WRONG_INPUT;
-                }
             }
         }
     }
@@ -200,14 +189,9 @@ int check_matr_output (Matrix *result, char *output) {
     for (size_t i = 0; i < answer->num_row; i++) {
         for (size_t j = 0; j < answer->num_col; j++) {
             tmp = strtok(NULL, separator);
-            if (tmp == NULL) {
+            if (str_to_int(tmp, &(answer->data[i][j])) == WRONG_INPUT) {
                 free_matr(answer);
                 return WRONG_INPUT;
-            } else {
-                if (str_to_int(tmp, &(answer->data[i][j])) == WRONG_INPUT) {
-                    free_matr(answer);
-                    return WRONG_INPUT;
-                }
             }
         }
     }
