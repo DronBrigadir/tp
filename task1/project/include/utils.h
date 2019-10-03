@@ -24,6 +24,6 @@
 #define DEFAULT 0
 
 int str_to_int(char* src, int *tmp);
-int is_str_contains_letter (char *str);
+int is_str_contains_letter(char *str);
 
 #endif //TASK1_UTILS_H

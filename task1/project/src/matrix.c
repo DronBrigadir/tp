@@ -34,6 +34,7 @@ int init_matr(Matrix **matrix, int num_row, int num_col) {
     if ((*matrix) == NULL) {
         return MEM_ALLOC_ERR;
     }
+
     (*matrix)->num_col = num_col;
     (*matrix)->num_row = num_row;
 
@@ -42,6 +43,7 @@ int init_matr(Matrix **matrix, int num_row, int num_col) {
         free(*matrix);
         return MEM_ALLOC_ERR;
     }
+
     int is_alloc_err = DEFAULT;
     for (size_t i = 0; i < (*matrix)->num_row; i++) {
         (*matrix)->data[i] = (int*)malloc((*matrix)->num_col * sizeof(int));
@@ -62,6 +64,7 @@ void free_matr(Matrix *matrix) {
     for (size_t i = 0; i < matrix->num_row; i++) {
         free(matrix->data[i]);
     }
+
     free(matrix->data);
     free(matrix);
 }
@@ -70,6 +73,7 @@ int is_matrix_equal (Matrix *l, Matrix *r) {
     if (l->num_row != r->num_row || l->num_col != r->num_col) {
         return WRONG_RESULT;
     }
+
     for (size_t i = 0; i < l->num_row; i++) {
         for (size_t j = 0; j < l->num_col; j++) {
             if (l->data[i][j] != r->data[i][j]) {
