@@ -18,8 +18,10 @@ void test(FILE *in) {
         int parser_return_value = parser(&test_name, &a, &b, &answer, str);
 
         if (parser_return_value == WRONG_INPUT) {
+            if (test_name) {
+                printf("%s: ", test_name);
+            }
             printf("Wrong input\n");
-            return;
         } else if (parser_return_value == MEM_ALLOC_ERR) {
             printf("Memory allocation error\n");
             return;
