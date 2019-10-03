@@ -65,3 +65,18 @@ void free_matr(Matrix *matrix) {
     free(matrix->data);
     free(matrix);
 }
+
+int is_matrix_equal (Matrix *l, Matrix *r) {
+    if (l->num_row != r->num_row || l->num_col != r->num_col) {
+        return WRONG_RESULT;
+    }
+    for (size_t i = 0; i < l->num_row; i++) {
+        for (size_t j = 0; j < l->num_col; j++) {
+            if (l->data[i][j] != r->data[i][j]) {
+                return WRONG_RESULT;
+            }
+        }
+    }
+
+    return DEFAULT;
+}
