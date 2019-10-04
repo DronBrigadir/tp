@@ -18,69 +18,110 @@
 #include <cassert>
 #include <sstream>
 
-struct Node {
-    Node(int departureTime) : departureTime(departureTime), next(nullptr) {}
-    int departureTime;
-    Node *next;
-};
-
-class List {
+class MyException
+{
 public:
-    List() : head_(nullptr), tail_(nullptr), minNode_(nullptr), numOfDeadlocks_(0) {}
-    ~List() {
-        while (head_ != nullptr) {
-            Node *oldHead = head_;
-            head_ = head_->next;
-            delete oldHead;
-        }
-    }
-    void Insert(int arrivalTime, int departureTime) {
-        if (numOfDeadlocks_ == 0) {
-            Node *newNode = new Node(departureTime);
-            head_ = newNode;
-            tail_ = newNode;
-            minNode_ = newNode;
-            numOfDeadlocks_++;
-            return;
-        }
-
-        if (arrivalTime > minNode_->departureTime) {
-            minNode_->departureTime = departureTime;
-            UpdateMin();
-        } else {
-            numOfDeadlocks_++;
-            Node *newNode = new Node(departureTime);
-            tail_->next = newNode;
-            tail_ = newNode;
-            UpdateMin();
-        }
-    }
-    int GetNumOfDeadlocks() {
-        return numOfDeadlocks_;
+    MyException(std::string error) : mError(error) {}
+    std::string GetError() {
+        return mError;
     }
 
 private:
-    Node *head_;
-    Node *tail_;
-    Node *minNode_;
-    int numOfDeadlocks_;
-    void UpdateMin() {
-        if (head_ == tail_) {
-            minNode_ = head_;
+    std::string mError;
+};
+
+class Heap {
+public:
+    Heap() {
+        curSize_ = 0;
+        size_ = 4;
+        ExpandArray(size_);
+    }
+    ~Heap() {
+        delete [] array_;
+    }
+    void Insert(int elem) {
+        Add(elem);
+        SiftUp(curSize_ - 1);
+    }
+    int ExtractRoot() {
+        if (curSize_ == 0) {
+            throw MyException("Heap is empty");
+        }
+
+        int result = array_[0];
+
+        array_[0] = array_[--curSize_];
+
+        if (curSize_ != 0) {
+            SiftDown(0);
+        }
+
+        return result;
+    }
+    int PeekRoot() {
+        if (curSize_ == 0) {
+            throw MyException("Heap is empty");
+        }
+        return array_[0];
+    }
+    int GetSize() {
+        return curSize_;
+    }
+private:
+    int *array_;
+    int size_;
+    int curSize_;
+    void Add(int elem) {
+        if (curSize_ == size_) {
+            ExpandArray(size_ * 2);
+        }
+
+        array_[curSize_++] = elem;
+    }
+    void ExpandArray(int size) {
+        if (size == 4) {
+            array_ = new int [size];
             return;
         }
 
-        Node *newMin = head_;
-        Node *curNode = head_->next;
+        int *newArray = new int [size];
 
-        do {
-            if (newMin->departureTime > curNode->departureTime) {
-                newMin = curNode;
+        for (size_t i = 0; i < curSize_; i++) {
+            newArray[i] = array_[i];
+        }
+
+        delete [] array_;
+        array_ = newArray;
+        size_ = size;
+    }
+    void SiftUp(int index) {
+        while (index > 0) {
+            int parent = (index - 1) / 2;
+            if (array_[index] >= array_[parent]) {
+                return;
             }
-            curNode = curNode->next;
-        } while (curNode != tail_->next);
+            std::swap(array_[index], array_[parent]);
+            index = parent;
+        }
+    }
+    void SiftDown(int index) {
+        int left = 2 * index + 1;
+        int right = 2 * index + 2;
 
-        minNode_ = newMin;
+        int largest = index;
+
+        if (left < curSize_ && array_[left] < array_[index]) {
+            largest = left;
+        }
+        if (right < curSize_ && array_[right] < array_[largest]) {
+            largest = right;
+        }
+
+        if (largest != index) {
+            std::swap(array_[index], array_[largest]);
+            SiftDown(largest);
+        }
     }
 };
 
@@ -88,16 +129,32 @@ void run(std::istream &in, std::ostream &out) {
     size_t n = 0;
     in >> n;
 
-    List list = List();
+    Heap heap = Heap();
 
     for (size_t i = 0; i < n; i++) {
         int arrivalTime = 0;
         int departureTime = 0;
         in >> arrivalTime >> departureTime;
-        list.Insert(arrivalTime, departureTime);
+
+        try {
+            int root = heap.PeekRoot();
+
+            if (arrivalTime > root) {
+                heap.ExtractRoot();
+                heap.Insert(departureTime);
+            } else {
+                heap.Insert(departureTime);
+            }
+        }
+        catch (MyException &exception) {
+            heap.Insert(departureTime);
+        }
+        catch (std::exception &exception) {
+            std::cerr << exception.what() << std::endl;
+        }
     }
 
-    int numOfDeadlocks = list.GetNumOfDeadlocks();
+    int numOfDeadlocks = heap.GetSize();
     out << numOfDeadlocks;
 }
 
@@ -197,12 +254,38 @@ void test() {
     }
     {
         std::stringstream input;
-        input << "0" << std::endl;
+        input << "6" << std::endl;
+        input << "10 20" << std::endl;
+        input << "11 20" << std::endl;
+        input << "20 30" << std::endl;
+        input << "21 31" << std::endl;
+        input << "21 31" << std::endl;
+        input << "21 31" << std::endl;
 
         std::stringstream output;
 
         run(input, output);
-        assert(output.str() == "0");
+        assert(output.str() == "4");
+    }
+    {
+        std::stringstream input;
+        input << "11" << std::endl;
+        input << "10 20" << std::endl;
+        input << "10 20" << std::endl;
+        input << "10 20" << std::endl;
+        input << "10 20" << std::endl;
+        input << "10 20" << std::endl;
+        input << "21 25" << std::endl;
+        input << "21 25" << std::endl;
+        input << "21 25" << std::endl;
+        input << "21 25" << std::endl;
+        input << "21 25" << std::endl;
+        input << "26 25" << std::endl;
+
+        std::stringstream output;
+
+        run(input, output);
+        assert(output.str() == "5");
     }
 }
 
