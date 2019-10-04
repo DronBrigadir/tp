@@ -18,6 +18,10 @@
 #include <cassert>
 #include <sstream>
 
+bool compare(int l, int r) {
+    return l < r;
+}
+
 class MyException
 {
 public:
@@ -32,7 +36,8 @@ private:
 
 class Heap {
 public:
-    Heap() {
+    Heap(bool(*compare)(int, int)) {
+        compare_ = compare;
         curSize_ = 0;
         size_ = 4;
         ExpandArray(size_);
@@ -72,6 +77,7 @@ private:
     int *array_;
     int size_;
     int curSize_;
+    bool(*compare_)(int, int);
     void Add(int elem) {
         if (curSize_ == size_) {
             ExpandArray(size_ * 2);
@@ -98,7 +104,7 @@ private:
     void SiftUp(int index) {
         while (index > 0) {
             int parent = (index - 1) / 2;
-            if (array_[index] >= array_[parent]) {
+            if (compare_(array_[parent], array_[index]) || array_[parent] == array_[index]) {
                 return;
             }
             std::swap(array_[index], array_[parent]);
@@ -111,10 +117,10 @@ private:
 
         int largest = index;
 
-        if (left < curSize_ && array_[left] < array_[index]) {
+        if (left < curSize_ && compare_(array_[left], array_[index])) {
             largest = left;
         }
-        if (right < curSize_ && array_[right] < array_[largest]) {
+        if (right < curSize_ && compare_(array_[right], array_[largest])) {
             largest = right;
         }
 
@@ -129,7 +135,7 @@ void run(std::istream &in, std::ostream &out) {
     size_t n = 0;
     in >> n;
 
-    Heap heap = Heap();
+    Heap heap = Heap(compare);
 
     for (size_t i = 0; i < n; i++) {
         int arrivalTime = 0;
