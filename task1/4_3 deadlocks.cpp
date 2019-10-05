@@ -18,6 +18,8 @@
 #include <cassert>
 #include <sstream>
 
+#include <list>
+
 template <typename T>
 class Array {
 public:
@@ -64,8 +66,10 @@ private:
     }
 };
 
-bool compare(int l, int r) {
-    return l < r;
+template<typename T>
+bool less(const T& lhs, const T& rhs)
+{
+    return lhs < rhs;
 }
 
 class MyException
@@ -80,11 +84,11 @@ private:
     std::string mError;
 };
 
-template <typename T>
+template <typename T, class Compare>
 class Heap {
 public:
-    Heap(bool(*compare)(int, int)) {
-        compare_ = compare;
+    Heap(Compare cmp) {
+        comparator_ = cmp;
         array_ = Array<T>();
     }
     ~Heap() {}
@@ -119,11 +123,11 @@ public:
     }
 private:
     Array<T> array_;
-    bool(*compare_)(int, int);
+    Compare comparator_;
     void SiftUp(int index) {
         while (index > 0) {
             int parent = (index - 1) / 2;
-            if (compare_(array_[parent], array_[index]) || array_[parent] == array_[index]) {
+            if (comparator_(array_[parent], array_[index]) || array_[parent] == array_[index]) {
                 return;
             }
             std::swap(array_[index], array_[parent]);
@@ -136,10 +140,10 @@ private:
 
         int largest = index;
 
-        if (left < array_.GetSize() && compare_(array_[left], array_[index])) {
+        if (left < array_.GetSize() && comparator_(array_[left], array_[index])) {
             largest = left;
         }
-        if (right < array_.GetSize() && compare_(array_[right], array_[largest])) {
+        if (right < array_.GetSize() && comparator_(array_[right], array_[largest])) {
             largest = right;
         }
 
@@ -154,7 +158,7 @@ void run(std::istream &in, std::ostream &out) {
     size_t n = 0;
     in >> n;
 
-    Heap<int> heap = Heap<int> (compare);
+    Heap<int, std::less<int>> heap = Heap<int, std::less<int>>(std::less<int>());
 
     for (size_t i = 0; i < n; i++) {
         int arrivalTime = 0;
