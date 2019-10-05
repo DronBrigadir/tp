@@ -21,7 +21,7 @@ public:
         tail_ = 0;
         curSize_ = 0;
         bufferSize_ = 4;
-        ExpandBuffer(bufferSize_);
+        data_ = new int [bufferSize_];
     }
     ~Queue() {
         delete [] data_;
@@ -69,10 +69,6 @@ private:
     int tail_;
     int curSize_;
     void ExpandBuffer(int size) {
-        if (size == 4) {
-            data_ = new int [size];
-            return;
-        }
         int *newData = new int [size];
 
         int curNew = 0;
