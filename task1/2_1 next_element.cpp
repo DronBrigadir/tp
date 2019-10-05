@@ -10,28 +10,13 @@
 #include <cassert>
 #include <sstream>
 
+#define DEFAULT 0
+#define FIRST_ELEM -1
+#define NOT_FOUND -2
+
 class Find {
 public:
-    Find(std::istream &in) {
-        int n = 0;
-        int m = 0;
-        in >> n >> m;
-        n_ = n;
-        m_ = m;
-
-        int *a = new int [n_];
-        a_ = a;
-        for (size_t i = 0; i < n_; i++) {
-            in >> a_[i];
-        }
-
-        int *b = new int [m_];
-        b_ = b;
-        for (size_t i = 0; i < m_; i++) {
-            in >> b_[i];
-        }
-        ExpSearch();
-    }
+    Find(int *a, int *b, int n, int m) : a_(a), b_(b), n_(n), m_(m) {}
 
     ~Find() {
         delete [] a_;
@@ -39,7 +24,7 @@ public:
     }
 
     std::string GetAnswer() {
-        return answer_;
+        return GenAnswer();
     }
 
 private:
@@ -47,7 +32,6 @@ private:
     int m_;
     int *a_;
     int *b_;
-    std::string answer_;
     int BinSearch(int elem, int left, int right) {
         bool isFind = false;
         int mid = 0;
@@ -67,48 +51,74 @@ private:
         return mid;
     }
 
-    void ExpSearch() {
+    int ExpSearch(int elem, int &l, int &r) {
+        if (a_[0] >= elem) {
+            return FIRST_ELEM;
+        } else if (n_ == 1) {
+            return NOT_FOUND;
+        } else {
+            int end = n_ == 2 ? 1 : 2;
+            while (end <= (n_ - 1)) {
+                if (a_[end] >= elem) {
+                    l = end / 2;
+                    r = end;
+                    return DEFAULT;
+                }
+
+                end *= 2;
+            }
+
+            if (a_[n_ - 1] >= elem) {
+                l = end / 2;
+                r = n_ - 1;
+                return DEFAULT;
+            } else {
+                return NOT_FOUND;
+            }
+        }
+    }
+    std::string GenAnswer() {
         std::stringstream answer;
+
         for (size_t i = 0; i < m_; i++) {
-            if (a_[0] >= b_[i]) {
-                answer << 0 << ' ';
-            } else if (n_ == 1) {
+            int l = 0;
+            int r = 0;
+
+            int returnValue = ExpSearch(b_[i], l, r);
+
+            if (returnValue == FIRST_ELEM) {
+                answer << "0 ";
+            } else if (returnValue == NOT_FOUND) {
                 answer << n_ << ' ';
             } else {
-                int end = 1;
-                bool isGetIn = false;
-                while (!isGetIn) {
-                    if (a_[end] >= b_[i]) {
-                        int left = end / 2;
-                        int right = end;
-                        answer << BinSearch(b_[i], left, right) << ' ';
-                        isGetIn = true;
-                    }
-                    end *= 2;
-                    if (end > (n_ - 1) && isGetIn == false) {
-                        if (a_[n_ - 1] >= b_[i]) {
-                            int left = end / 2;
-                            int right = n_ - 1;
-                            answer << BinSearch(b_[i], left, right) << ' ';
-                            isGetIn = true;
-                        } else {
-                            answer << n_ << ' ';
-                            isGetIn = true;
-                        }
-                    }
-                }
+                answer << BinSearch(b_[i], l, r) << ' ';
             }
         }
 
-        answer_ = answer.str();
-        answer_.back() = '\n';
+        std::string tmp = answer.str();
+        tmp.back() = '\n';
+        return tmp;
     }
 };
 
 void run(std::istream &in, std::ostream &out) {
-    Find tmp = Find(in);
-    std::string answer = tmp.GetAnswer();
-    out << answer;
+    int n = 0;
+    int m = 0;
+    in >> n >> m;
+
+    int *a = new int[n];
+    for (size_t i = 0; i < n; i++) {
+        in >> a[i];
+    }
+
+    int *b = new int[m];
+    for (size_t i = 0; i < m; i++) {
+        in >> b[i];
+    }
+
+    Find find = Find(a, b, n, m);
+
+    out << find.GetAnswer();
 }
 
 void test() {
@@ -136,17 +146,6 @@ void test() {
     }
     {
         std::stringstream input;
-        input << "5 4" << std::endl;
-        input << "1 10 7 3 15" << std::endl;
-        input << "13 8 7 1" << std::endl;
-
-        std::stringstream output;
-
-        run(input, output);
-        assert(output.str() == "4 1 1 0\n");
-    }
-    {
-        std::stringstream input;
         input << "9 1" << std::endl;
         input << "1 1 1 1 1 15 15 15 15" << std::endl;
         input << "8" << std::endl;
@@ -159,6 +158,7 @@ void test() {
 }
 
 int main () {
+    //test();
     run(std::cin, std::cout);
 
     return 0;
