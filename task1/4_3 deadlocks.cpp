@@ -18,6 +18,52 @@
 #include <cassert>
 #include <sstream>
 
+template <typename T>
+class Array {
+public:
+    Array () {
+        curSize_ = 0;
+        size_ = 4;
+        array_ = new T [size_];
+    }
+    ~Array() {
+        delete [] array_;
+    }
+    void Add(T elem) {
+        if (curSize_ == size_) {
+            ExpandArray(size_ * 2);
+        }
+
+        array_[curSize_++] = elem;
+    }
+    int GetSize() {
+        return curSize_;
+    }
+    T& operator[] (const int index)
+    {
+        return array_[index];
+    }
+    void DeleteLast() {
+        curSize_--;
+    }
+
+private:
+    T *array_;
+    int size_;
+    int curSize_;
+    void ExpandArray(int size) {
+        T *newArray = new T [size];
+
+        for (size_t i = 0; i < curSize_; i++) {
+            newArray[i] = array_[i];
+        }
+
+        delete [] array_;
+        array_ = newArray;
+        size_ = size;
+    }
+};
+
 bool compare(int l, int r) {
     return l < r;
 }
@@ -34,73 +80,46 @@ private:
     std::string mError;
 };
 
+template <typename T>
 class Heap {
 public:
     Heap(bool(*compare)(int, int)) {
         compare_ = compare;
-        curSize_ = 0;
-        size_ = 4;
-        ExpandArray(size_);
+        array_ = Array<T>();
     }
-    ~Heap() {
-        delete [] array_;
-    }
+    ~Heap() {}
     void Insert(int elem) {
-        Add(elem);
-        SiftUp(curSize_ - 1);
+        array_.Add(elem);
+        SiftUp(array_.GetSize() - 1);
     }
     int ExtractRoot() {
-        if (curSize_ == 0) {
+        if (array_.GetSize() == 0) {
             throw MyException("Heap is empty");
         }
 
         int result = array_[0];
 
-        array_[0] = array_[--curSize_];
+        array_[0] = array_[array_.GetSize() - 1];
+        array_.DeleteLast();
 
-        if (curSize_ != 0) {
+        if (array_.GetSize() != 0) {
             SiftDown(0);
         }
 
         return result;
     }
     int PeekRoot() {
-        if (curSize_ == 0) {
+        if (array_.GetSize() == 0) {
             throw MyException("Heap is empty");
         }
         return array_[0];
     }
     int GetSize() {
-        return curSize_;
+        return array_.GetSize();
     }
 private:
-    int *array_;
-    int size_;
-    int curSize_;
+    Array<T> array_;
     bool(*compare_)(int, int);
-    void Add(int elem) {
-        if (curSize_ == size_) {
-            ExpandArray(size_ * 2);
-        }
-
-        array_[curSize_++] = elem;
-    }
-    void ExpandArray(int size) {
-        if (size == 4) {
-            array_ = new int [size];
-            return;
-        }
-
-        int *newArray = new int [size];
-
-        for (size_t i = 0; i < curSize_; i++) {
-            newArray[i] = array_[i];
-        }
-
-        delete [] array_;
-        array_ = newArray;
-        size_ = size;
-    }
     void SiftUp(int index) {
         while (index > 0) {
             int parent = (index - 1) / 2;
@@ -117,10 +136,10 @@ private:
 
         int largest = index;
 
-        if (left < curSize_ && compare_(array_[left], array_[index])) {
+        if (left < array_.GetSize() && compare_(array_[left], array_[index])) {
             largest = left;
         }
-        if (right < curSize_ && compare_(array_[right], array_[largest])) {
+        if (right < array_.GetSize() && compare_(array_[right], array_[largest])) {
             largest = right;
         }
 
@@ -135,7 +154,7 @@ void run(std::istream &in, std::ostream &out) {
     size_t n = 0;
     in >> n;
 
-    Heap heap = Heap(compare);
+    Heap<int> heap = Heap<int> (compare);
 
     for (size_t i = 0; i < n; i++) {
         int arrivalTime = 0;
