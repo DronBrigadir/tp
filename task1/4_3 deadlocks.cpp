@@ -89,7 +89,6 @@ class Heap {
 public:
     Heap(Compare cmp) {
         comparator_ = cmp;
-        array_ = Array<T>();
     }
     ~Heap() {}
     void Insert(int elem) {
