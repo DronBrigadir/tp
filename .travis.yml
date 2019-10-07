@@ -20,6 +20,7 @@ addons:
       - cmake
       - gcc-6
       - valgrind
+      - cppcheck
 
 script:
   - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
@@ -30,4 +31,5 @@ script:
   - cmake ..
   - make
   - valgrind --tool=memcheck --leak-check=full ./task
+  - cppcheck --enable=all --std=c99 --check-config --suppress=missingIncludeSystem -I ../project/include/ ../project/src/
   - ./task
