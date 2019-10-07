@@ -26,4 +26,4 @@ script:
   - cd ./task1
   - cmake ./
   - make
-  - ./task1
+  - ./task
