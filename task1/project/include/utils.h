@@ -14,7 +14,7 @@
 // где С - матрица, полученная в результате умножения А и В
 // В конце строки каждого теста нужно добавить '|'
 
-#define TEST_FILE_PATH "./project/tests/test.txt"
+#define TEST_FILE_PATH "../project/tests/test.txt"
 #define MAX_BUFFER 1024
 #define WRONG_INPUT -1
 #define MATR_CANNOT_BE_MULTIPLIED -2
