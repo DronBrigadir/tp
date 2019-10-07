@@ -19,6 +19,7 @@ addons:
     packages:
       - cmake
       - gcc-6
+      - valgrind
 
 script:
   - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
@@ -26,4 +27,5 @@ script:
   - cd ./task1
   - cmake ./
   - make
+  - valgrind --tool=memcheck --leak-check=full ./task
   - ./task
