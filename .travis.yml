@@ -27,7 +27,7 @@ script:
   - cd ./task1
   - mkdir build
   - cd build
-  - cmake ./
+  - cmake ..
   - make
   - valgrind --tool=memcheck --leak-check=full ./task
   - ./task
