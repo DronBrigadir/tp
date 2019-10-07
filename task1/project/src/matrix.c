@@ -16,10 +16,8 @@ int matrix_multiplication(Matrix *a, Matrix *b, Matrix **result) {
         return MEM_ALLOC_ERR;
     }
 
-    for (size_t i = 0; i < a->num_row; i++)
-    {
-        for (size_t j = 0; j < b->num_col; j++)
-        {
+    for (size_t i = 0; i < a->num_row; i++) {
+        for (size_t j = 0; j < b->num_col; j++) {
             (*result)->data[i][j] = 0;
             for (size_t k = 0; k < a->num_col; k++)
                 (*result)->data[i][j] += a->data[i][k] * b->data[k][j];
@@ -69,7 +67,7 @@ void free_matr(Matrix *matrix) {
     free(matrix);
 }
 
-int is_matrix_equal (Matrix *l, Matrix *r) {
+int is_matrix_equal(Matrix *l, Matrix *r) {
     if (l->num_row != r->num_row || l->num_col != r->num_col) {
         return WRONG_RESULT;
     }

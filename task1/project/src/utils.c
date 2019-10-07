@@ -19,7 +19,7 @@ int str_to_int(char* src, int *tmp) {
     }
 }
 
-int is_str_contains_letter (char *str) {
+int is_str_contains_letter(char *str) {
     for (size_t i = 0; str[i] != '\0'; i++) {
         if (str[i] < '0' || str[i] > '9') {
             return 1;

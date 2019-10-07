@@ -71,23 +71,25 @@ void test(FILE *in) {
     }
 }
 
-int parser(char **test_name, Matrix **a, Matrix **b, Matrix **answer, char *input) {
+int parser(char **test_name, Matrix **a, Matrix **b,
+           Matrix **answer, char *input) {
     char *separator = " |";
 
     // Получение наименования теста
-    (*test_name) = strtok(input, separator);
+    (*test_name) = strtok_r(input, separator, test_name);
+    input += strlen(*test_name) + 1;
     if (!(*test_name)) {
         return WRONG_INPUT;
     }
 
-    int get_data_return_value = get_matrix_data(a);
+    int get_data_return_value = get_matrix_data(a, &input);
     if (get_data_return_value == WRONG_INPUT) {
         return WRONG_INPUT;
     } else if (get_data_return_value == MEM_ALLOC_ERR) {
         return MEM_ALLOC_ERR;
     }
 
-    get_data_return_value = get_matrix_data(b);
+    get_data_return_value = get_matrix_data(b, &input);
     if (get_data_return_value == WRONG_INPUT) {
         free_matr(*a);
         return WRONG_INPUT;
@@ -96,7 +98,7 @@ int parser(char **test_name, Matrix **a, Matrix **b, Matrix **answer, char *inpu
         return WRONG_INPUT;
     }
 
-    get_data_return_value = get_matrix_data(answer);
+    get_data_return_value = get_matrix_data(answer, &input);
     if (get_data_return_value == WRONG_INPUT) {
         free_matr(*a);
         free_matr(*b);
@@ -112,25 +114,28 @@ int parser(char **test_name, Matrix **a, Matrix **b, Matrix **answer, char *inpu
     return DEFAULT;
 }
 
-int get_matrix_data(Matrix **matr) {
+int get_matrix_data(Matrix **matr, char **string_to_parse) {
     char *separator = " |";
 
     // Получение количества строк матрицы
     int row;
     char *tmp;
-    tmp = strtok(NULL, separator);
+    tmp = strtok_r(*string_to_parse, separator, &tmp);
+    *string_to_parse += strlen(tmp) + 1;
     if (str_to_int(tmp, &row) == WRONG_INPUT) {
         return WRONG_INPUT;
     }
 
-    // Если в тесте в ответе '0', то это значит, что матрицы не могут быть умножены
+    // Если в тесте в ответе '0', то это значит,
+    // что матрицы не могут быть умножены
     if (row == 0) {
         return MATR_CANNOT_BE_MULTIPLIED;
     }
 
     // Получение количества столбцов матрицы
     int col;
-    tmp = strtok(NULL, separator);
+    tmp = strtok_r(*string_to_parse, separator, &tmp);
+    *string_to_parse += strlen(tmp) + 1;
     if (str_to_int(tmp, &col) == WRONG_INPUT) {
         return WRONG_INPUT;
     }
@@ -143,7 +148,8 @@ int get_matrix_data(Matrix **matr) {
     // Получение данных для матрицы
     for (size_t i = 0; i < (*matr)->num_row; i++) {
         for (size_t j = 0; j < (*matr)->num_col; j++) {
-            tmp = strtok(NULL, separator);
+            tmp = strtok_r(*string_to_parse, separator, &tmp);
+            *string_to_parse += strlen(tmp) + 1;
             if (str_to_int(tmp, &(*matr)->data[i][j]) == WRONG_INPUT) {
                 free_matr(*matr);
                 return WRONG_INPUT;

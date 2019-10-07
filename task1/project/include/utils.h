@@ -2,8 +2,8 @@
 // Created by andrey on 01.10.2019.
 //
 
-#ifndef TASK1_UTILS_H
-#define TASK1_UTILS_H
+#ifndef TASK1_PROJECT_INCLUDE_UTILS_H_
+#define TASK1_PROJECT_INCLUDE_UTILS_H_
 
 // Структура входных данных тесте (каждый тест находится на одной строке):
 // название_теста количество_строк_А количество_столбцов_А данные_для_А (каждое число указывается через '|')
@@ -26,4 +26,4 @@
 int str_to_int(char* src, int *tmp);
 int is_str_contains_letter(char *str);
 
-#endif //TASK1_UTILS_H
+#endif  // TASK1_PROJECT_INCLUDE_UTILS_H_
