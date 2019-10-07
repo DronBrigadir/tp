@@ -1,0 +1,25 @@
+dist: trusty
+sudo: required
+
+language: c
+
+branches:
+  only:
+    - c++
+
+os: linux
+
+compiler:
+  - gcc
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - cmake
+      - gcc-6
+
+script:
+  - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
+  - export CC=/usr/bin/gcc-6
