@@ -9,6 +9,7 @@
 #include <sstream>
 #include <exception>
 #include <cstring>
+#include <cassert>
 
 struct Line {
     Line(int begin, int end) : begin(begin), end(end) {}
@@ -104,18 +105,9 @@ public:
         }
 
         int length = r - l + 1;
-        int leftLength = length / 2;
-        int rightLength = length - leftLength;
 
         try {
-            helpMergeSort(&array_, leftLength);
-            T *tmpArray = array_ + leftLength;
-            helpMergeSort(&tmpArray, rightLength);
-
-            T *tmp = new T [length];
-            Merge(array_, leftLength, array_ + leftLength, rightLength, tmp);
-            std::memcpy(array_, tmp, sizeof(T) * length);
-            delete[] tmp;
+            helpMergeSort(array_, length);
         }
         catch (std::bad_alloc &e) {
             std::cerr << e.what() << std::endl;
@@ -138,7 +130,7 @@ private:
         array_ = newArray;
         size_ = size;
     }
-    void helpMergeSort(T **array, int length) {
+    void helpMergeSort(T *array, int length) {
         if (length <= 1) {
             return;
         }
@@ -147,12 +139,11 @@ private:
         int rightLength = length - leftLength;
 
         helpMergeSort(array, leftLength);
-        T *tmpArray = (*array) + leftLength;
-        helpMergeSort(&tmpArray, rightLength);
+        helpMergeSort(array + leftLength, rightLength);
 
         T *tmp = new T [length];
-        Merge(*array, leftLength, (*array) + leftLength, rightLength, tmp);
-        std::memcpy(*array, tmp, sizeof(T) * length);
+        Merge(array, leftLength, array + leftLength, rightLength, tmp);
+        std::memcpy(array, tmp, sizeof(T) * length);
         delete[] tmp;
     }
     template <typename Comparator = DefaultComparator<T>>
@@ -185,8 +176,28 @@ private:
 };
 
 template <typename T>   
-int lengthOfPaintingPart(Array<T> arr) {  // TODO() : написать реализацию функции
+int lengthOfPaintingPart(Array<T> *arr) {
+    if (arr->GetSize() == 0) {
+        return 0;
+    }
 
+    Line prev = (*arr)[0];
+    int length = prev.end - prev.begin;
+    for (size_t i = 1; i < arr->GetSize(); i++) {
+        Line curr = (*arr)[i];
+
+        if (curr.begin >= prev.begin && curr.end <= prev.end) {
+            continue;
+        } else if (curr.begin <= prev.end && curr.end > prev.end) {
+            length += curr.end - prev.end;
+            prev = curr;
+        } else if (curr.begin > prev.end) {
+            length += curr.end - curr.begin;
+            prev = curr;
+        }
+    }
+
+    return length;
 }
 
 void run(std::istream &in, std::ostream &out) {
@@ -202,12 +213,10 @@ void run(std::istream &in, std::ostream &out) {
         array.Add(tmp);
     }
 
-    array.Print();
     array.mergeSort(0, array.GetSize() - 1, LineComparator());
-    array.Print();
 
     int answer = 0;
-    answer = lengthOfPaintingPart(array);
+    answer = lengthOfPaintingPart(&array);
 
     out << answer;
 }
@@ -223,12 +232,25 @@ void test() {
         std::stringstream output;
 
         run(input, output);
-        //assert(output.str() == "5");
+        assert(output.str() == "5");
+    }
+    {
+        std::stringstream input;
+        input << "4" << std::endl;
+        input << "1 4" << std::endl;
+        input << "2 4" << std::endl;
+        input << "1 8" << std::endl;
+        input << "3 5" << std::endl;
+
+        std::stringstream output;
+
+        run(input, output);
+        assert(output.str() == "7");
     }
 }
 
 int main () {
-    test();
-    //run(std::cin, std::cout);
+    //test();
+    run(std::cin, std::cout);
     return 0;
 }
