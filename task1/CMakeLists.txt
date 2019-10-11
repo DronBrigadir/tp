@@ -14,13 +14,3 @@ SET(LIB_SRC_FILES
 include_directories(project/include)
 
 add_executable(task ${LIB_SRC_FILES})
-
-# sets GTEST_INCLUDE_DIRS and GTEST_LIBRARIES
-#find_package(GTest REQUIRED)
-# adds the gtest include directory
-#include_directories(${GTEST_INCLUDE_DIRS})
-
-#add_executable(tests_gtest project/src/tests_gtest.c)
-
-# links gtest
-#target_link_libraries(tests_gtest ${GTEST_LIBRARIES})
