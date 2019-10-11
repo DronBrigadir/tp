@@ -21,6 +21,7 @@
 #define MEM_ALLOC_ERR -3
 #define WRONG_RESULT -4
 #define UNABLE_TO_OPEN_FILE -5
+#define NULL_PTR -6
 #define DEFAULT 0
 
 int str_to_int(char* src, int *tmp);

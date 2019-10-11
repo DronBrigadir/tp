@@ -8,6 +8,10 @@
 #include "malloc.h"
 
 int matrix_multiplication(Matrix *a, Matrix *b, Matrix **result) {
+    if (a == NULL || b == NULL) {
+        return NULL_PTR;
+    }
+
     if (a->num_col != b->num_row) {
         return MATR_CANNOT_BE_MULTIPLIED;
     }
@@ -68,6 +72,10 @@ void free_matr(Matrix *matrix) {
 }
 
 int is_matrix_equal(Matrix *l, Matrix *r) {
+    if (l == NULL || r == NULL) {
+        return NULL_PTR;
+    }
+
     if (l->num_row != r->num_row || l->num_col != r->num_col) {
         return WRONG_RESULT;
     }
