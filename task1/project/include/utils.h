@@ -22,6 +22,8 @@
 #define UNABLE_TO_OPEN_FILE -5
 #define NULL_PTR -6
 #define EMPTY_ARGS -7
+#define TEST_PASSED -8
+#define TEST_FAILED -9
 #define DEFAULT 0
 
 int str_to_int(char* src, int *tmp);

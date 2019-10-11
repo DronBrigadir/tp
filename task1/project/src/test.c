@@ -26,42 +26,15 @@ void test(FILE *in) {
             printf("Memory allocation error\n");
             return;
         } else {
-            Matrix *result;
-            int mult_return_value = matrix_multiplication(a, b, &result);
+            int check_return_value = check_answer(&a, &b, &answer, parser_return_value);
 
-            free_matr(a);
-            free_matr(b);
-
-            if (mult_return_value == MEM_ALLOC_ERR) {
-                if (parser_return_value != MATR_CANNOT_BE_MULTIPLIED) {
-                    free_matr(answer);
-                }
+            if (check_return_value == MEM_ALLOC_ERR) {
                 printf("Memory allocation error\n");
                 return;
-            }
-
-            if (parser_return_value == MATR_CANNOT_BE_MULTIPLIED) {
-                if (mult_return_value == MATR_CANNOT_BE_MULTIPLIED) {
-                    printf("%s passed\n", test_name);
-                } else if (mult_return_value == DEFAULT) {
-                    printf("%s failed\n", test_name);
-                    free_matr(result);
-                }
-            } else if (parser_return_value == DEFAULT) {
-                if (mult_return_value == MATR_CANNOT_BE_MULTIPLIED) {
-                    printf("%s failed\n", test_name);
-                } else if (mult_return_value == DEFAULT) {
-                    int equal_return_value = is_matrix_equal(result, answer);
-                    free_matr(result);
-
-                    if (equal_return_value == WRONG_RESULT) {
-                        printf("%s failed\n", test_name);
-                    } else if (equal_return_value == DEFAULT) {
-                        printf("%s passed\n", test_name);
-                    }
-                }
-
-                free_matr(answer);
+            } else if (check_return_value == TEST_PASSED) {
+                printf("%s passed\n", test_name);
+            } else if (check_return_value == TEST_FAILED) {
+                printf("%s failed\n", test_name);
             }
         }
     }
@@ -158,4 +131,43 @@ int get_matrix_data(Matrix **matr, char **string_to_parse) {
     }
 
     return DEFAULT;
+}
+
+int check_answer(Matrix **l, Matrix**r, Matrix **answer, int parser_return_value) {
+    Matrix *result;
+    int mult_return_value = matrix_multiplication(*l, *r, &result);
+
+    free_matr(*l);
+    free_matr(*r);
+
+    if (mult_return_value == MEM_ALLOC_ERR) {
+        if (parser_return_value != MATR_CANNOT_BE_MULTIPLIED) {
+            free_matr(*answer);
+        }
+        return MEM_ALLOC_ERR;
+    }
+
+    if (parser_return_value == MATR_CANNOT_BE_MULTIPLIED) {
+        if (mult_return_value == MATR_CANNOT_BE_MULTIPLIED) {
+            return TEST_PASSED;
+        } else if (mult_return_value == DEFAULT) {
+            free_matr(result);
+            return TEST_FAILED;
+        }
+    } else if (parser_return_value == DEFAULT) {
+        if (mult_return_value == MATR_CANNOT_BE_MULTIPLIED) {
+            free_matr(*answer);
+            return TEST_FAILED;
+        } else if (mult_return_value == DEFAULT) {
+            int equal_return_value = is_matrix_equal(result, *answer);
+            free_matr(result);
+            free_matr(*answer);
+
+            if (equal_return_value == WRONG_RESULT) {
+                return TEST_FAILED;
+            } else if (equal_return_value == DEFAULT) {
+                return TEST_PASSED;
+            }
+        }
+    }
 }
