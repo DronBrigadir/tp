@@ -14,7 +14,6 @@
 // где С - матрица, полученная в результате умножения А и В
 // В конце строки каждого теста нужно добавить '|'
 
-#define TEST_FILE_PATH "../project/tests/test.txt"
 #define MAX_BUFFER 1024
 #define WRONG_INPUT -1
 #define MATR_CANNOT_BE_MULTIPLIED -2
@@ -22,6 +21,7 @@
 #define WRONG_RESULT -4
 #define UNABLE_TO_OPEN_FILE -5
 #define NULL_PTR -6
+#define EMPTY_ARGS -7
 #define DEFAULT 0
 
 int str_to_int(char* src, int *tmp);

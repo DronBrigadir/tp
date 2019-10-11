@@ -2,11 +2,17 @@
 #include "test.h"
 #include "utils.h"
 
-int main() {
+int main(int argc, char *argv[]) {
+    if (argc <= 1) {
+        printf("Please add the test path to the main arguments\n");
+        return EMPTY_ARGS;
+    }
+
     FILE *test_file;
-    test_file = fopen(TEST_FILE_PATH, "r");
+    char *file_path = argv[1];
+    test_file = fopen(file_path, "r");
     if (!test_file) {
-        printf("Unable to open file: %s\n", TEST_FILE_PATH);
+        printf("Unable to open file: %s\n", file_path);
         return UNABLE_TO_OPEN_FILE;
     }
 
