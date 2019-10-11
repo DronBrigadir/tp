@@ -30,6 +30,6 @@ script:
   - cd build
   - cmake ..
   - make
-  - valgrind --tool=memcheck --leak-check=full ./task
+  - valgrind --tool=memcheck --leak-check=full ./task ../project/tests/test.txt
   - cppcheck --enable=all --std=c99 --check-config --suppress=missingIncludeSystem -I ../project/include/ ../project/src/
   - ./task ../project/tests/test.txt
