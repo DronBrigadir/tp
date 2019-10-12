@@ -94,26 +94,6 @@ public:
 
         std::cout << std::endl;
     }
-    template <typename Comparator = DefaultComparator<T>>
-    void mergeSort(int l, int r, Comparator cmp = Comparator()) {
-        if (this->GetSize() < r) {
-            throw std::out_of_range("The right border is larger than the array size");
-        }
-
-        if (l >= r) {
-            throw std::invalid_argument("The right border should be larger than the left");
-        }
-
-        int length = r - l + 1;
-
-        try {
-            helpMergeSort(array_, length);
-        }
-        catch (std::bad_alloc &e) {
-            std::cerr << e.what() << std::endl;
-            return;
-        }
-    }
 
 private:
     T *array_;
@@ -130,50 +110,72 @@ private:
         array_ = newArray;
         size_ = size;
     }
-    void helpMergeSort(T *array, int length) {
-        if (length <= 1) {
-            return;
-        }
-
-        int leftLength = length / 2;
-        int rightLength = length - leftLength;
-
-        helpMergeSort(array, leftLength);
-        helpMergeSort(array + leftLength, rightLength);
-
-        T *tmp = new T [length];
-        Merge(array, leftLength, array + leftLength, rightLength, tmp);
-        std::memcpy(array, tmp, sizeof(T) * length);
-        delete[] tmp;
-    }
-    template <typename Comparator = DefaultComparator<T>>
-    void Merge(T *lArray, int lLength, T *rArray, int rLength, T *dest, Comparator cmp = Comparator()) {
-        int lPointer = 0;
-        int rPointer = 0;
-        int i = 0;
-
-        while (i < (lLength + rLength) && lPointer < lLength && rPointer < rLength) {
-            if (cmp(lArray[lPointer], rArray[rPointer])) {
-                dest[i] = lArray[lPointer++];
-            } else {
-                dest[i] = rArray[rPointer++];
-            }
-            i++;
-        }
-
-        if (lPointer == lLength) {
-            while (i < (lLength + rLength)) {
-                dest[i] = rArray[rPointer++];
-                i++;
-            }
-        } else {
-            while (i < (lLength + rLength)) {
-                dest[i] = lArray[lPointer++];
-                i++;
-            }
-        }
-    }
 };
+
+template <typename T>
+void arrayCopy(Array<T> *dest, int dBegin, int dEnd,
+               Array<T> *src, int sBegin, int sEnd) {
+    if (dEnd - dBegin != sEnd - sBegin) {
+        throw std::invalid_argument("Wrong copy parametres");
+    }
+
+    int i = dBegin;
+
+    for (int j = sBegin; j <= sEnd; j++) {
+        (*dest)[i++] = (*src)[j];
+    }
+}
+
+template <typename T, typename Comparator = DefaultComparator<T>>
+void mergeSort(Array<T> *array, int begin, int end, Comparator cmp = Comparator()) {
+    if (array->GetSize() < end) {
+        throw std::out_of_range("The right border is larger than the array size");
+    }
+
+    if (begin > end) {
+        throw std::invalid_argument("The right border should be larger than the left");
+    }
+
+    if (begin == end) {
+        return;
+    }
+
+    int length = end - begin + 1;
+
+    int leftLength = length / 2;
+
+    mergeSort(array, begin, begin + leftLength - 1, cmp);
+    mergeSort(array, begin + leftLength, end, cmp);
+
+    Array<T> tmp = Array<T>();
+    Merge(array, begin, begin + leftLength - 1, begin + leftLength, end, &tmp, cmp);
+    arrayCopy(array, begin, end, &tmp, 0, tmp.GetSize() - 1);
+}
+
+template <typename T, typename Comparator = DefaultComparator<T>>
+void Merge(Array<T> *array, int lBegin, int lEnd, int rBegin, int rEnd,
+           Array<T> *dest, Comparator cmp = Comparator()) {
+    int lPointer = lBegin;
+    int rPointer = rBegin;
+
+    while (lPointer <= lEnd && rPointer <= rEnd) {
+        if (cmp((*array)[lPointer], (*array)[rPointer])) {
+            dest->Add((*array)[lPointer++]);
+        } else {
+            dest->Add((*array)[rPointer++]);
+        }
+    }
+
+    if (lPointer == lEnd + 1) {
+        while (rPointer <= rEnd) {
+            dest->Add((*array)[rPointer++]);
+        }
+    } else {
+        while (lPointer <= lEnd) {
+            dest->Add((*array)[lPointer++]);
+        }
+    }
+}
 
 template <typename T>   
 int lengthOfPaintingPart(Array<T> *arr) {
@@ -213,7 +215,7 @@ void run(std::istream &in, std::ostream &out) {
         array.Add(tmp);
     }
 
-    array.mergeSort(0, array.GetSize() - 1, LineComparator());
+    mergeSort(&array, 0, array.GetSize() - 1, LineComparator());
 
     int answer = 0;
     answer = lengthOfPaintingPart(&array);
