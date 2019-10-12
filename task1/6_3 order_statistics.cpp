@@ -14,10 +14,10 @@
 #include <cstring>
 #include <cassert>
 
-void swap(int **array, int pos_first, int pos_second) {
-    int tmp = (*array)[pos_second];
-    (*array)[pos_second] = (*array)[pos_first];
-    (*array)[pos_first] = tmp;
+void swap(int *array, int pos_first, int pos_second) {
+    int tmp = array[pos_second];
+    array[pos_second] = array[pos_first];
+    array[pos_first] = tmp;
 }
 
 template <typename T>
@@ -31,14 +31,14 @@ public:
 };
 
 template <typename T, typename Comparator = DefaultComparator<T>>
-int partition(T **array, int begin, int end, Comparator cmp = Comparator()) {
+int partition(T *array, int begin, int end, Comparator cmp = Comparator()) {
     size_t i = begin;
 
     int sup_elem_pos = rand() % (end - begin + 1) + begin;
     swap(array, sup_elem_pos, end);
 
     for (int j = begin; j < end; j++) {
-        if ((*array)[j] < (*array)[end] || (*array)[j]== (*array)[end]) {
+        if (cmp(array[j], array[end]) || array[j]== array[end]) {
             swap(array, i, j);
             i++;
         }
@@ -49,7 +49,7 @@ int partition(T **array, int begin, int end, Comparator cmp = Comparator()) {
 }
 
 template <typename T, typename Comparator = DefaultComparator<T>>
-int find_order_statisctics(T **array, int n, int k, Comparator cmp = Comparator()) {
+int find_order_statisctics(T *array, int n, int k, Comparator cmp = Comparator()) {
     int begin = 0;
     int end = n - 1;
 
@@ -82,8 +82,8 @@ void run(std::istream &in, std::ostream &out) {
         in >> array[i];
     }
 
-    int order_statustics_pos = find_order_statisctics(&array, n, k);
-    int order_statistics = array[order_statustics_pos];
+    int order_statistics_pos = find_order_statisctics(array, n, k);
+    int order_statistics = array[order_statistics_pos];
     delete[] array;
 
     out << order_statistics;
