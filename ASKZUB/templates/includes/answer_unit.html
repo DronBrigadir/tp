@@ -1,0 +1,36 @@
+<div class="col-sm-2">
+    <div class="row mx-auto py-2">
+        {% load staticfiles %}
+        <img class="border border-secondary" src="{% static 'img/avatar.svg' %}" width="128">
+    </div>
+    <div class="row p-2">
+        <div class="col-sm-6 border border-secondary">
+            counts
+        </div>
+        <div class="col-sm-6 border border-secondary">
+            <div class="row">
+                <a class="mx-auto" href="#">
+                    <img src="{% static 'img/arrow-top.svg' %}" width="16">
+                </a>
+            </div>
+            <div class="row">
+                <a class="mx-auto" href="#">
+                    <img src="{% static 'img/arrow-bottom.svg' %}" width="16">
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-sm-10">
+    <p>
+        Question answer
+    </p>
+
+    <div class="row">
+        <div class="checkbox">
+            <label><input type="checkbox" value="" class="ml-3"> Correct</label>
+        </div>
+    </div>
+
+</div>
