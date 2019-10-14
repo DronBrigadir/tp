@@ -1,0 +1,44 @@
+<div class="col-sm-2">
+    <div class="row mx-auto py-2">
+        {% load staticfiles %}
+        <img class="border border-secondary" src="{% static 'img/avatar.svg' %}" width="128">
+    </div>
+    <div class="row p-2">
+        <div class="col-sm-6 border border-secondary">
+            counts
+        </div>
+        <div class="col-sm-6 border border-secondary">
+            <div class="row">
+                <a class="mx-auto" href="#">
+                    {% load staticfiles %}
+                    <img src="{% static 'img/arrow-top.svg' %}" width="16">
+                </a>
+            </div>
+            <div class="row">
+                <a class="mx-auto" href="#">
+                    {% load staticfiles %}
+                    <img src="{% static 'img/arrow-bottom.svg' %}" width="16">
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-sm-10">
+    <h2><a href="/">Question title</a> </h2>
+    <p>
+        Question text
+    </p>
+
+    <div class="row align-items-center">
+        <div class="col-sm-4">
+            <a href="/">answers</a>
+        </div>
+        <div class="col-sm-8">
+            Tags:
+            <a href="/">tag1</a>
+            <a href="/">tag2</a>
+        </div>
+    </div>
+
+</div>
