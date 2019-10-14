@@ -7,16 +7,16 @@
 
     <div class="container-fluid">
         <div class="row">
-            <div class="col-sm-8 main-content border border-primary p-2">
+            <div class="col-sm-8 main-content p-2">
                 {% block content %}
                 {% endblock %}
             </div>
 
-            <div class="col-sm-4 border border-primary p-2">
-                <div class="mb-2 border border-primary">
+            <div class="col-sm-4 p-2">
+                <div class="mb-2">
                     {% include "includes/sidebar_tags.html" %}
                 </div>
-                <div class="border border-primary">
+                <div>
                     {% include "includes/sidebar_best_members.html" %}
                 </div>
             </div>
