@@ -12,3 +12,6 @@ def signup(request):
 
 def ask(request):
     return render(request, 'ask.html')
+
+def question(request):
+    return render(request, 'question.html')
