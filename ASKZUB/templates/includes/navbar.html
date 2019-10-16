@@ -10,8 +10,12 @@
             </div>
         </form>
         <div class="navbar-right">
-            <a href="{% url 'ask:login' %}"><span class="button mr-2">Login</span></a>
-            <a href="{% url 'ask:signup' %}"><span class="button">Sign Up</span></a>
+            <ul class="list-inline">
+                <li>
+                    <a href="{% url 'ask:login' %}"><span class="button mr-2">Login</span></a>
+                    <a href="{% url 'ask:signup' %}"><span class="button">Sign Up</span></a>
+                </li>
+            </ul>
         </div>
     </div>
 </nav>
