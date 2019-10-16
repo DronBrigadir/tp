@@ -1,13 +1,15 @@
 <div class="col-sm-2">
-    <div class="row mx-auto py-2">
+    <div class="row">
         {% load staticfiles %}
-        <img class="border border-secondary" src="{% static 'img/avatar.svg' %}" width="128">
+        <img class="border-right border-secondary img-fluid" src="{% static 'img/avatar.svg' %}">
     </div>
-    <div class="row p-2">
-        <div class="col-sm-6 border border-secondary">
-            counts
+    <div class="row border-top border-secondary">
+        <div class="col-sm-6 border-right border-secondary">
+            <div class="text-center text">
+                5
+            </div>
         </div>
-        <div class="col-sm-6 border border-secondary">
+        <div class="col-sm-6 border-right border-secondary">
             <div class="row">
                 <a class="mx-auto" href="#">
                     <img src="{% static 'img/arrow-top.svg' %}" width="16">
@@ -28,7 +30,7 @@
         Question text
     </p>
 
-    <div class="row align-items-center">
+    <div class="row">
         <div class="col-sm-4">
             <a href="/">answers</a>
         </div>
