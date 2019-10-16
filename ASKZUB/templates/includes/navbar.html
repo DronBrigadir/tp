@@ -9,13 +9,9 @@
                 </div>
             </div>
         </form>
-        <ul class="nav navbar-nav navbar-right">
-            <li>
-                <a href="{% url 'ask:login' %}"><span class="button">Login</span></a>
-            </li>
-            <li>
-                <a href="{% url 'ask:signup' %}"><span class="button">Sign Up</span></a>
-            </li>
-        </ul>
+        <div class="navbar-right">
+            <a href="{% url 'ask:login' %}"><span class="button">Login</span></a>
+            <a href="{% url 'ask:signup' %}"><span class="button">Sign Up</span></a>
+        </div>
     </div>
 </nav>
