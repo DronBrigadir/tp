@@ -1,0 +1,21 @@
+<nav class="navbar navbar-default bg-light">
+    <div class="container-fluid">
+        <a href="/" class="navbar-brand">Ask ZUB</a>
+        <form class="navbar-form">
+            <div class="input-group">
+                <input class="form-control" type="text" placeholder="ask me a question">
+                <div class="input-group-btn">
+                    <a class="btn btn-outline-success mx-2" href="{% url 'ask:ask' %}" role="button">Ask</a>
+                </div>
+            </div>
+        </form>
+        <div class="navbar-right">
+            <ul class="list-inline">
+                <li>
+                    <a href="{% url 'ask:login' %}"><span class="button mr-2">Login</span></a>
+                    <a href="{% url 'ask:signup' %}"><span class="button">Sign Up</span></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
