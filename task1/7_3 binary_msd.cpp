@@ -37,13 +37,9 @@ public:
         curSize_--;
     }
     void Print(std::ostream &out) {
-        std::stringstream printArray;
         for (size_t i = 0; i < this->GetSize(); i++) {
-            printArray << array_[i] << ' ';
+            out << array_[i] << ' ';
         }
-        std::string tmp = printArray.str();
-        tmp.back() = '\n';
-        out << tmp;
     }
     void Swap (int l, int r) {
         T tmp = array_[l];
@@ -122,8 +118,6 @@ void binQuickSort(Array<T> *arr, int l, int r) {
     helpBinQuickSort(arr, l, r, highBitNumber);
 }
 
-
-
 void run(std::istream &in, std::ostream &out) {
     size_t n = 0;
     in >> n;
@@ -151,7 +145,7 @@ void test() {
         std::stringstream output;
 
         run(input, output);
-        assert(output.str() == "4 7 1000000\n");
+        assert(output.str() == "4 7 1000000 ");
     }
     {
         std::stringstream input;
@@ -161,12 +155,12 @@ void test() {
         std::stringstream output;
 
         run(input, output);
-        assert(output.str() == "3 5 19 21 24\n");
+        assert(output.str() == "3 5 19 21 24 ");
     }
 }
 
 int main () {
-    test();
-    //run(std::cin, std::cout);
+    //test();
+    run(std::cin, std::cout);
     return 0;
 }
