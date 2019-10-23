@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.9)
-project(task1 C)
+project(task C)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_FLAGS "-std=c99 -ggdb3 -Wall")

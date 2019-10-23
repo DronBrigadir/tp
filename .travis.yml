@@ -25,7 +25,6 @@ addons:
 script:
   - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
   - export CC=/usr/bin/gcc-6
-  - cd ./task1
   - mkdir build
   - cd build
   - cmake ..
