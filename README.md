@@ -1,6 +1,6 @@
 C/C++ осень 2019
 
-[![Build Status](https://travis-ci.org/DronBrigadir/tp.png?branch=c%2B%2B)](https://travis-ci.org/DronBrigadir/tp?branch=c%2B%2B)
+[![Build Status](https://travis-ci.org/DronBrigadir/tp.svg?branch=C%2FC%2B%2B_HW_1)](https://travis-ci.org/DronBrigadir/tp)
 
 
 Составить программу перемножения двухмерных матриц. Матрицы заданы в виде вектора векторов. Алгоритм оформить в виде функции, получающей на вход указатели на две двумерные матрицы и их размеры по каждому измерению. На выход функция должна возвращать полученную матрицу, а также ее размеры.
