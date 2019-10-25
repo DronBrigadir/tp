@@ -7,6 +7,8 @@
 #define ERR_MEM_ALLOC    -1
 #define CANT_OPEN_FILE   -2
 #define ERR_CONTENT_FILE -3
+#define WRONG_ARGS       -4
+#define NULL_PTR         -5
 
 int read_from_file(int **buf, int *size, char *file_path);
 
