@@ -11,6 +11,7 @@ os: linux
 
 compiler:
   - gcc
+  - clang
 
 addons:
   apt:
@@ -18,9 +19,24 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - cmake
-      - gcc-6
+      - gcc
       - valgrind
       - cppcheck
+      - clang
+
+install:
+  - cmake --version
+  - gcc --version
+  - clang --version
+  - sudo apt install cppcheck
+  - sudo apt install valgrind
+  - sudo apt install libgtest-dev
+  - cd /usr/src/gtest
+  - dir
+  - sudo cmake CMakeLists.txt
+  - sudo make
+  - sudo mv libgtest* /usr/lib/
+  - cd "${TRAVIS_BUILD_DIR}"
 
 script:
   - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
@@ -29,6 +45,7 @@ script:
   - cd build
   - cmake ..
   - make
-  - valgrind --tool=memcheck --leak-check=full ./task
+  - valgrind --tool=memcheck --leak-check=full ./task ../project/data/data.txt
   - cppcheck --enable=all --std=c99 --check-config --suppress=missingIncludeSystem -I ../project/include/ ../project/src/
-  - ./task
+  - ./task ../project/data/data.txt
+  - ./gtest_test
