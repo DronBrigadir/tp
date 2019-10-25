@@ -39,6 +39,8 @@ install:
   - cd "${TRAVIS_BUILD_DIR}"
 
 script:
+  - ls -la
+  - pwd
   - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
   - export CC=/usr/bin/gcc-6
   - mkdir build
