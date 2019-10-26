@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "utils.h"
 #include "seq_realisation.h"
@@ -30,14 +31,21 @@ int main(int argc, char *argv[]) {
     printf("Sequentially realisation:\n");
     int *res = NULL;
     int res_size = 0;
+
+    clock_t begin = clock();
     return_value = find_lis(buf, size, &res, &res_size);
+    clock_t end = clock();
+    double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("Time elapsed: %f\n", time_spent);
+
     if (return_value == ERR_MEM_ALLOC) {
         free(buf);
         printf("Memory allocation error\n");
         return ERR_MEM_ALLOC;
     }
 
-    printf("size: %d\n", res_size);
+    printf("Subsequence size: %d\n", res_size);
+    printf("Subsequence: ");
     for (int i = 0; i < res_size; i++) {
         printf("%d ", res[i]);
     }
