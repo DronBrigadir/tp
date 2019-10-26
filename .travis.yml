@@ -24,6 +24,13 @@ addons:
       - cppcheck
       - clang
 
+before_install:
+  - sudo apt update
+  - sudo -i  which clang
+  - sudo -i clang --version
+  - sudo -i which cmake
+  - sudo -i cmake --version
+
 install:
   - cmake --version
   - gcc --version
@@ -39,8 +46,6 @@ install:
   - cd "${TRAVIS_BUILD_DIR}"
 
 script:
-  - ls -la
-  - pwd
   - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
   - export CC=/usr/bin/gcc-6
   - mkdir build
@@ -51,3 +56,6 @@ script:
   - cppcheck --enable=all --std=c99 --check-config --suppress=missingIncludeSystem -I ../project/include/ ../project/src/
   - ./task ../project/data/data.txt
   - ./gtest_test
+
+notifications:
+  email: false
