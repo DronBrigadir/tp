@@ -1,0 +1,56 @@
+dist: xenial
+sudo: required
+
+language:
+  - c
+  - c++
+
+branches:
+  only:
+    - C/C++_HW_2
+
+os: linux
+
+compiler:
+  - gcc
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - cmake
+      - gcc
+      - valgrind
+      - cppcheck
+
+before_install:
+  - sudo apt-get update
+  - sudo -i which cmake
+  - sudo -i cmake --version
+
+install:
+  - cmake --version
+  - gcc --version
+  - sudo apt install cppcheck
+  - sudo apt install valgrind
+  - sudo apt install libgtest-dev
+  - cd /usr/src/gtest
+  - dir
+  - sudo cmake CMakeLists.txt
+  - sudo make
+  - sudo mv libgtest* /usr/lib/
+  - cd "${TRAVIS_BUILD_DIR}"
+
+script:
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make
+  - valgrind --tool=memcheck --leak-check=full ./task ../project/data/data.txt
+  - cppcheck --enable=all --std=c99 --check-config --suppress=missingIncludeSystem -I ../project/include/ ../project/src/
+  - ./task ../project/data/data.txt
+  - ./gtest_test
+
+notifications:
+  email: false
