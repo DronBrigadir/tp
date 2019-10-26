@@ -23,19 +23,15 @@ addons:
       - gcc
       - valgrind
       - cppcheck
-      - clang
 
 before_install:
   - sudo apt-get update
-  - sudo -i  which clang
-  - sudo -i clang --version
   - sudo -i which cmake
   - sudo -i cmake --version
 
 install:
   - cmake --version
   - gcc --version
-  - clang --version
   - sudo apt install cppcheck
   - sudo apt install valgrind
   - sudo apt install libgtest-dev
@@ -47,8 +43,6 @@ install:
   - cd "${TRAVIS_BUILD_DIR}"
 
 script:
-  - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
-  - export CC=/usr/bin/gcc-6
   - mkdir build
   - cd build
   - cmake ..
