@@ -1,7 +1,7 @@
-dist: trusty
+dist: xenial
 sudo: required
 
-language: c
+language: c++
 
 branches:
   only:
@@ -11,7 +11,6 @@ os: linux
 
 compiler:
   - gcc
-  - clang
 
 addons:
   apt:
@@ -25,6 +24,7 @@ addons:
       - clang
 
 before_install:
+  - sudo apt-get update
   - sudo -i  which clang
   - sudo -i clang --version
   - sudo -i which cmake
