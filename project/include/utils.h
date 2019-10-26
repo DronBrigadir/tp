@@ -9,6 +9,7 @@
 #define ERR_CONTENT_FILE -3
 #define WRONG_ARGS       -4
 #define NULL_PTR         -5
+#define INT_MAX          1000
 
 int read_from_file(int **buf, int *size, char *file_path);
 
