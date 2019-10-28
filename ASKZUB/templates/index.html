@@ -11,13 +11,12 @@
             </div>
         </div>
 
-        <div class="row border border-secondary my-2">
-            {% include "includes/question_unit.html" %}
-        </div>
-        <div class="row border border-secondary my-2">
-            {% include "includes/question_unit.html" %}
-        </div>
+        {% for question in questions_to_show %}
+            <div class="row border border-secondary my-2">
+                {% include "includes/question_unit.html" with question=question %}
+            </div>
+        {% endfor %}
     </div>
 
-    {% include "includes/pagination.html" %}
+    {% include "includes/pagination.html" with items=questions_to_show %}
 {% endblock %}
