@@ -47,6 +47,7 @@ class Command(BaseCommand):
                 a = Answer.objects.create(author=choice(authors),
                                           question=q,
                                           votes=f.random_int(min=-100, max=100),
+                                          content=f.text(256),
                                           creation_time=f.date_time_between(start_date=q.creation_time,
                                                                             end_date='+30d',
                                                                             tzinfo=moscow_tz))
