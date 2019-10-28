@@ -1,6 +1,12 @@
 from django.db import models
+from django.db.models import Count
 from django.conf import settings
 from django.utils import timezone
+
+
+class AuthorManager(models.Manager):
+    def best(self):
+        return self.order_by('-rating')[:3]
 
 
 class Author(models.Model):
@@ -13,6 +19,13 @@ class Author(models.Model):
     def __str__(self):
         return self.user.username
 
+    object = AuthorManager()
+
+
+class QuestionManager(models.Manager):
+    def recent(self):
+        self.order_by('-creation_time')
+
 
 class Question(models.Model):
     author = models.ForeignKey('Author', on_delete=models.CASCADE)
@@ -23,6 +36,8 @@ class Question(models.Model):
 
     def __str__(self):
         return self.title
+
+    object = QuestionManager()
 
 
 class Answer(models.Model):
@@ -36,9 +51,16 @@ class Answer(models.Model):
         return "Answer to question: {}".format(self.question.title)
 
 
+class TagManager(models.Manager):
+    def popular(self):
+        return self.annotate(question_count=Count('question')).order_by('-question_count')[:3]
+
+
 class Tag(models.Model):
     question = models.ManyToManyField(Question)
     name = models.CharField(max_length=32)
 
     def __str__(self):
         return self.name
+
+    object = TagManager()
