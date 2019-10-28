@@ -24,8 +24,8 @@ class Author(models.Model):
 
 
 class QuestionManager(models.Manager):
-    def recent(self, request):
-        return paginator.paginate(self.order_by('-creation_time'), 4, request)
+    def recent(self, page_number):
+        return paginator.paginate(self.order_by('-creation_time'), 4, page_number)
 
     def by_id(self, question_id):
         return self.get(id=question_id)
@@ -45,9 +45,9 @@ class Question(models.Model):
 
 
 class AnswerManager(models.Manager):
-    def for_question(self, request, question_id):
+    def for_question(self, question_id, page_number):
         question = Question.objects.by_id(question_id)
-        paginator.paginate(self.filter(question=question).order_by('-creation_time'), 2, request)
+        paginator.paginate(self.filter(question=question).order_by('-creation_time'), 2, page_number)
 
 
 class Answer(models.Model):
