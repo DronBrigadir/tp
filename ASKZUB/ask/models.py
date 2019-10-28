@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models import Count
 from django.conf import settings
 from django.utils import timezone
+from ask.utils import paginator
 
 
 class AuthorManager(models.Manager):
@@ -19,36 +20,47 @@ class Author(models.Model):
     def __str__(self):
         return self.user.username
 
-    object = AuthorManager()
+    objects = AuthorManager()
 
 
 class QuestionManager(models.Manager):
-    def recent(self):
-        self.order_by('-creation_time')
+    def recent(self, request):
+        return paginator.paginate(self.order_by('-creation_time'), 4, request)
+
+    def by_id(self, question_id):
+        return self.get(id=question_id)
 
 
 class Question(models.Model):
     author = models.ForeignKey('Author', on_delete=models.CASCADE)
     title = models.CharField(max_length=128)
-    content = models.TextField()
+    content = models.TextField(null=False)
     votes = models.IntegerField(default=0)
     creation_time = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.title
 
-    object = QuestionManager()
+    objects = QuestionManager()
+
+
+class AnswerManager(models.Manager):
+    def for_question(self, request, question_id):
+        question = Question.objects.by_id(question_id)
+        paginator.paginate(self.filter(question=question).order_by('-creation_time'), 2, request)
 
 
 class Answer(models.Model):
     author = models.ForeignKey('Author', on_delete=models.CASCADE)
     question = models.ForeignKey('Question', on_delete=models.CASCADE)
     votes = models.IntegerField(default=0)
-    content = models.TextField
+    content = models.TextField(default='Answer on question')
     creation_time = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return "Answer to question: {}".format(self.question.title)
+
+    objects = AnswerManager()
 
 
 class TagManager(models.Manager):
@@ -63,4 +75,4 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
 
-    object = TagManager()
+    objects = TagManager()
