@@ -1,8 +1,8 @@
 <div>
     <h2>Best Members</h2>
     <div>
-         <h3>UserName1</h3>
-         <h3>UserName2</h3>
-         <h3>UserName3</h3>
+         {% for username in best_members %}
+             <h3>{{ username }}</h3>
+         {% endfor %}
     </div>
 </div>
