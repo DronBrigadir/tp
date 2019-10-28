@@ -7,7 +7,7 @@ def index(request):
     context = {
         'popular_tags': Tag.objects.popular(),
         'best_members': Author.objects.best(),
-        #'question_to_show': Question.object.recent(request)
+        #'question_to_show': Question.objects.recent(request)
         'questions_to_show': paginator.paginate(Question.objects.order_by('-creation_time'), 4, request)
     }
     return render(request, 'index.html', context)
@@ -32,6 +32,6 @@ def question(request, question_id):
         'best_members': Author.objects.best(),
         'question': q,
         'answers': paginator.paginate(Answer.objects.filter(question=q).order_by('-creation_time'), 2, request)
-        #'answers': Answer.object.for_question(request, question_id)
+        #'answers': Answer.objects.for_question(request, question_id)
     }
     return render(request, 'question.html', context)
