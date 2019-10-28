@@ -7,7 +7,8 @@ class Author(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL,
                                 on_delete=models.CASCADE)
     rating = models.IntegerField(default=0)
-    avatar = models.ImageField()
+    avatar = models.ImageField(upload_to='images/',
+                               default='static/img/avatar.svg')
 
     def __str__(self):
         return self.user.username
