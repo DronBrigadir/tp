@@ -47,7 +47,8 @@ class Question(models.Model):
 class AnswerManager(models.Manager):
     def for_question(self, question_id, page_number):
         question = Question.objects.by_id(question_id)
-        paginator.paginate(self.filter(question=question).order_by('-creation_time'), 2, page_number)
+        object_list = self.filter(question=question).order_by('-creation_time')
+        return paginator.paginate(object_list, 2, page_number)
 
 
 class Answer(models.Model):
