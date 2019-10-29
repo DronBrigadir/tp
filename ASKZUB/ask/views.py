@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from ask.models import Tag, Author, Question, Answer
-from ask.utils import paginator
 
 
 def index(request):
@@ -16,15 +15,27 @@ def index(request):
 
 
 def login(request):
-    return render(request, 'login.html')
+    context = {
+        'popular_tags': Tag.objects.popular(),
+        'best_members': Author.objects.best()
+    }
+    return render(request, 'login.html', context)
 
 
 def signup(request):
-    return render(request, 'signup.html')
+    context = {
+        'popular_tags': Tag.objects.popular(),
+        'best_members': Author.objects.best()
+    }
+    return render(request, 'signup.html', context)
 
 
 def ask(request):
-    return render(request, 'ask.html')
+    context = {
+        'popular_tags': Tag.objects.popular(),
+        'best_members': Author.objects.best()
+    }
+    return render(request, 'ask.html', context)
 
 
 def question(request, question_id):
