@@ -3,4 +3,6 @@ project(module2)
 
 set(CMAKE_CXX_STANDARD 14)
 
+set(CMAKE_CXX_FLAGS "-std=c++0x -ggdb3 -Wall -Werror -Wpedantic")
+
 add_executable(task1_2 1_2\ hash_table.cpp)
