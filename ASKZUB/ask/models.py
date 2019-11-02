@@ -35,7 +35,7 @@ class Question(models.Model):
     author = models.ForeignKey('Author', on_delete=models.CASCADE)
     title = models.CharField(max_length=128)
     content = models.TextField(null=False)
-    votes = models.IntegerField(default=0)
+    rating = models.IntegerField(default=0)
     creation_time = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -53,7 +53,7 @@ class AnswerManager(models.Manager):
 class Answer(models.Model):
     author = models.ForeignKey('Author', on_delete=models.CASCADE)
     question = models.ForeignKey('Question', on_delete=models.CASCADE)
-    votes = models.IntegerField(default=0)
+    rating = models.IntegerField(default=0)
     content = models.TextField(default='Answer on question')
     creation_time = models.DateTimeField(default=timezone.now)
 
@@ -76,3 +76,23 @@ class Tag(models.Model):
         return self.name
 
     objects = TagManager()
+
+
+class QuestionVote(models.Model):
+    value = models.SmallIntegerField(default=0)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{0} votes to question: {1}".format(self.author,
+                                                   self.question.author)
+
+
+class AnswerVote(models.Model):
+    value = models.SmallIntegerField(default=0)
+    answer = models.ForeignKey(Answer, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{0} votes to answer: {1}".format(self.author,
+                                                 self.answer)
