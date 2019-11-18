@@ -28,14 +28,19 @@ const double ALPHA = 3.0 / 4.0;
 #include <vector>
 #include <cstddef>
 
+enum Status {
+    EMPTY,
+    DELETED,
+    FILLED
+};
+
 template <typename T>
 struct CellVal {
     T key;
-    bool deleted;
-    bool empty;
+    Status status;
 
-    CellVal(T &val): key(val), deleted(false), empty(false) {}
-    CellVal(): key(), deleted(false), empty(true) {}
+    CellVal(T &val): key(val), status(FILLED) {}
+    CellVal(): key(), status(EMPTY) {}
 };
 
 size_t HashMain(const std::string &s, size_t size)
@@ -75,20 +80,32 @@ public:
         size_t hashMain = HashMain(key, table.capacity());
         size_t hashEx = HashEx(key, table.capacity());
         size_t hash = hashMain;
+        size_t lastHash = hash;
+        T tmp = key;
+        bool isFind = false;
 
         unsigned int probNumber = 1;
 
         while (table.capacity() > probNumber) {
-            if (table[hash].empty) {
-                T tmp = key;
+            if (table[hash].status == EMPTY) {
                 table[hash] = CellVal<T>(tmp);
                 return;
             }
+            else if (table[hash].status == DELETED) {
+                if (isFind) {
+                    lastHash = hash;
+                }
+                hash = (hashMain + probNumber * (2 * hashEx + 1)) % table.capacity();
+                probNumber++;
+            }
             else {
+                isFind = true;
                 hash = (hashMain + probNumber * (2 * hashEx + 1)) % table.capacity();
                 probNumber++;
             }
         }
+
+        table[lastHash] = CellVal<T>(tmp);
     }
     bool Delete(const T &key) {
         size_t hashMain = HashMain(key, table.capacity());
@@ -98,13 +115,13 @@ public:
         unsigned int probNumber = 1;
 
         while (table.capacity() > probNumber) {
-            if (!table[hash].deleted && !table[hash].empty && table[hash].key == key) {
+            if (table[hash].status == FILLED && table[hash].key == key) {
                 table[hash] = CellVal<T>();
-                table[hash].deleted = true;
+                table[hash].status = DELETED;
                 size--;
                 return true;
             }
-            if (table[hash].empty && !table[hash].deleted) {
+            if (table[hash].status == EMPTY) {
                 return false;
             } else {
                 hash = (hashMain + probNumber * (2 * hashEx + 1)) % table.capacity();
@@ -122,10 +139,10 @@ public:
         unsigned int probNumber = 1;
 
         while (table.capacity() > probNumber) {
-            if (!table[hash].deleted && !table[hash].empty && table[hash].key == key) {
+            if (table[hash].status == FILLED && table[hash].key == key) {
                 return true;
             }
-            if (table[hash].empty && !table[hash].deleted) {
+            if (table[hash].status == EMPTY) {
                 return false;
             } else {
                 hash = (hashMain + probNumber * (2 * hashEx + 1)) % table.capacity();
@@ -141,31 +158,16 @@ private:
     size_t size;
     void Expand()
     {
-        std::vector<CellVal<T>> newTable(table.capacity() * 2, CellVal<T>());
+        auto oldTable = std::move(table);
+        table = std::vector<CellVal<T>>(oldTable.capacity() * 2, CellVal<T>());
 
-        for (size_t i = 0; i < table.capacity(); i++)
+        for (size_t i = 0; i < oldTable.capacity(); i++)
         {
-            T key = table[i].key;
-
-            size_t hashMain = HashMain(key, newTable.capacity());
-            size_t hashEx = HashEx(key, newTable.capacity());
-            size_t hash = hashMain;
-
-            unsigned int probNumber = 1;
-
-            while (newTable.capacity() > probNumber) {
-                if (newTable[hash].empty) {
-                    newTable[hash] = CellVal<T>(key);
-                    break;
-                }
-                else {
-                    hash = (hashMain + probNumber * (2 * hashEx + 1)) % newTable.capacity();
-                    probNumber++;
-                }
+            if (oldTable[i].status == FILLED) {
+                T key = oldTable[i].key;
+                this->Add(key);
             }
         }
-
-        table = std::move(newTable);
     }
 };
 
