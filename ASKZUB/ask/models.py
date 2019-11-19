@@ -24,18 +24,18 @@ class Author(models.Model):
 
 
 class QuestionManager(models.Manager):
-    def recent(self, page_number):
-        return paginator.paginate(self.order_by('-creation_time'), 4, page_number)
+    def recent(self, page_number, limit):
+        return paginator.paginate(self.order_by('-creation_time'), limit, page_number)
 
-    def hot(self, page_number):
-        return paginator.paginate(self.order_by('-rating'), 4, page_number)
+    def hot(self, page_number, limit):
+        return paginator.paginate(self.order_by('-rating'), limit, page_number)
 
     def by_id(self, question_id):
         return self.get(pk=question_id)
 
-    def questions_by_tag(self, tag_name, page_number):
+    def questions_by_tag(self, tag_name, page_number, limit):
         t = Tag.objects.get(name=tag_name)
-        return paginator.paginate(self.filter(tag=t), 4, page_number)
+        return paginator.paginate(self.filter(tag=t), limit, page_number)
 
 
 class Question(models.Model):
@@ -51,12 +51,6 @@ class Question(models.Model):
     objects = QuestionManager()
 
 
-class AnswerManager(models.Manager):
-    def for_question(self, question_id, page_number, question):
-        object_list = self.filter(question=question).order_by('-creation_time')
-        return paginator.paginate(object_list, 2, page_number)
-
-
 class Answer(models.Model):
     author = models.ForeignKey('Author', on_delete=models.CASCADE)
     question = models.ForeignKey('Question', on_delete=models.CASCADE)
@@ -66,8 +60,6 @@ class Answer(models.Model):
 
     def __str__(self):
         return "Answer to question: {}".format(self.question.title)
-
-    objects = AnswerManager()
 
 
 class TagManager(models.Manager):
