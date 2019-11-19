@@ -28,7 +28,7 @@ class QuestionManager(models.Manager):
         return paginator.paginate(self.order_by('-creation_time'), 4, page_number)
 
     def by_id(self, question_id):
-        return self.get(id=question_id)
+        return self.get(pk=question_id)
 
 
 class Question(models.Model):
