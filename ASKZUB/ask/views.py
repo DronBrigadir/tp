@@ -3,9 +3,7 @@ from ask.models import Tag, Author, Question, Answer
 
 
 def index(request):
-    question_page_number = request.GET.get('page')
-    if question_page_number is None:
-        question_page_number = 1
+    question_page_number = request.GET.get('page', 1)
     context = {
         'popular_tags': Tag.objects.popular(),
         'best_members': Author.objects.best(),
@@ -20,9 +18,7 @@ def index(request):
 
 
 def hot(request):
-    question_page_number = request.GET.get('page')
-    if question_page_number is None:
-        question_page_number = 1
+    question_page_number = request.GET.get('page', 1)
     context = {
         'popular_tags': Tag.objects.popular(),
         'best_members': Author.objects.best(),
@@ -62,9 +58,7 @@ def ask(request):
 
 def question(request, question_id):
     q = Question.objects.by_id(question_id)
-    answer_page_number = request.GET.get('page')
-    if answer_page_number is None:
-        answer_page_number = 1
+    answer_page_number = request.GET.get('page', 1)
     context = {
         'popular_tags': Tag.objects.popular(),
         'best_members': Author.objects.best(),
@@ -73,10 +67,9 @@ def question(request, question_id):
     }
     return render(request, 'question.html', context)
 
+
 def tag(request, tag_name):
-    question_page_number = request.GET.get('page')
-    if question_page_number is None:
-        question_page_number = 1
+    question_page_number = request.GET.get('page', 1)
     context = {
         'tag_name': tag_name,
         'popular_tags': Tag.objects.popular(),
