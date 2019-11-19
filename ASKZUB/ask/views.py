@@ -9,7 +9,29 @@ def index(request):
     context = {
         'popular_tags': Tag.objects.popular(),
         'best_members': Author.objects.best(),
-        'questions_to_show': Question.objects.recent(question_page_number)
+        'questions_to_show': Question.objects.recent(question_page_number),
+        'questions_switcher': {
+            'title': 'Hot Questions',
+            'href': '/hot'
+        },
+        'title': 'New Questions'
+    }
+    return render(request, 'index.html', context)
+
+
+def hot(request):
+    question_page_number = request.GET.get('page')
+    if question_page_number is None:
+        question_page_number = 1
+    context = {
+        'popular_tags': Tag.objects.popular(),
+        'best_members': Author.objects.best(),
+        'questions_to_show': Question.objects.hot(question_page_number),
+        'questions_switcher': {
+            'title': 'New Questions',
+            'href': '/'
+        },
+        'title': 'Hot Questions'
     }
     return render(request, 'index.html', context)
 
