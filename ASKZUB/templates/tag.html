@@ -1,0 +1,22 @@
+{% extends "extends/base.html" %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-sm-12">
+                <h2>
+                    Questions for tag
+                    <a href="{% url 'ask:tag' tag_name=tag_name %}">{{ tag_name }}</a>
+                </h2>
+            </div>
+        </div>
+
+        {% for question in questions_to_show %}
+            <div class="row border border-secondary my-2">
+                {% include "includes/question_unit.html" with question=question %}
+            </div>
+        {% endfor %}
+    </div>
+
+    {% include "includes/pagination.html" with items=questions_to_show %}
+{% endblock %}

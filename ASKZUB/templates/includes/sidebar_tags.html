@@ -2,7 +2,7 @@
     <h1>Popular Tags</h1>
     <div>
         {% for tag in popular_tags %}
-            <h3><a href="/">{{ tag }}</a></h3>
+            <h3><a href="{% url 'ask:tag' tag_name=tag.name %}">{{ tag }}</a></h3>
         {% endfor %}
     </div>
 </div>

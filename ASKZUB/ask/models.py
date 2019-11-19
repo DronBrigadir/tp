@@ -33,6 +33,10 @@ class QuestionManager(models.Manager):
     def by_id(self, question_id):
         return self.get(pk=question_id)
 
+    def questions_by_tag(self, tag_name, page_number):
+        t = Tag.objects.get(name=tag_name)
+        return paginator.paginate(self.filter(tag=t), 4, page_number)
+
 
 class Question(models.Model):
     author = models.ForeignKey('Author', on_delete=models.CASCADE)

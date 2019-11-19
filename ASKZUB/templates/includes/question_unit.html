@@ -35,7 +35,7 @@
             Tags:
             {% for tag in question.tag_set.all %}
                 <a
-                    href="/">{{ tag.name }}{% if not forloop.last %},{% endif %}
+                    href="{% url 'ask:tag' tag_name=tag.name %}">{{ tag.name }}{% if not forloop.last %},{% endif %}
                 </a>
             {% endfor %}
         </li>

@@ -72,3 +72,15 @@ def question(request, question_id):
         'answers': Answer.objects.for_question(question_id, answer_page_number, q)
     }
     return render(request, 'question.html', context)
+
+def tag(request, tag_name):
+    question_page_number = request.GET.get('page')
+    if question_page_number is None:
+        question_page_number = 1
+    context = {
+        'tag_name': tag_name,
+        'popular_tags': Tag.objects.popular(),
+        'best_members': Author.objects.best(),
+        'questions_to_show': Question.objects.questions_by_tag(tag_name, question_page_number)
+    }
+    return render(request, 'tag.html', context)
