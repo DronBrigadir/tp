@@ -1,7 +1,7 @@
 <nav class="navbar navbar-default bg-light">
     <div class="container-fluid">
         <a href="/" class="navbar-brand">Ask ZUB</a>
-        <form class="navbar-form">
+        <form class="navbar-form my-auto">
             <div class="input-group">
                 <input class="form-control" type="text" placeholder="ask me a question">
                 <div class="input-group-btn">
@@ -10,11 +10,22 @@
             </div>
         </form>
         <div class="navbar-right">
-            <ul class="list-inline">
-                <li>
-                    <a href="{% url 'ask:login' %}"><span class="button mr-2">Login</span></a>
-                    <a href="{% url 'ask:signup' %}"><span class="button">Sign Up</span></a>
-                </li>
+            <ul class="list-inline my-auto">
+                {% if user.is_authenticated %}
+                    <li>
+                        <span>Hello, {{ user.first_name }}</span>
+                    </li>
+                    <li>
+                        <a href="{% url 'ask:logout' %}"><span class="button mr-2">Log out</span></a>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="{% url 'ask:login' %}"><span class="button mr-2">Login</span></a>
+                    </li>
+                    <li>
+                        <a href="{% url 'ask:signup' %}"><span class="button">Sign Up</span></a>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </div>
