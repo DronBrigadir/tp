@@ -1,0 +1,18 @@
+{% for error in form.non_field_errors %}
+    <div class="alert alert-danger col-sm-6">
+        {{ error }}
+    </div>
+{% endfor %}
+
+{% for field in form.visible_fields %}
+    <div class="form-group row">
+        {% if field.errors %}
+            <div class="invalid-feedback">
+                {{ field.errors }}
+            </div>
+        {% endif %}
+
+        <label for="{{ field.id_for_label }}" class="col-sm-2 col-form-label">{{ field.label }}</label>
+        {{ field }}
+    </div>
+{% endfor %}
