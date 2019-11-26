@@ -1,6 +1,11 @@
 from django.shortcuts import render
-from ask.models import Tag, Author, Question, Answer
+from django.http import HttpResponseRedirect
+from django.contrib.auth import authenticate, login
+from django.views.generic import View
+from django.urls import reverse
+from ask.models import Tag, Author, Question
 from ask.utils.paginator import paginate
+from ask.forms import LoginForm
 
 
 def index(request):
@@ -35,12 +40,34 @@ def hot(request):
     return render(request, 'index.html', context)
 
 
-def login(request):
-    context = {
-        'popular_tags': Tag.objects.popular(),
-        'best_members': Author.objects.best()
-    }
-    return render(request, 'login.html', context)
+class LoginView(View):
+    def get(self, request):
+        form = LoginForm()
+        context = {
+            'popular_tags': Tag.objects.popular(),
+            'best_members': Author.objects.best(),
+            'form': form
+        }
+        return render(request, 'login.html', context)
+
+    def post(self, request):
+        form = LoginForm(data=request.POST)
+        context = {
+            'popular_tags': Tag.objects.popular(),
+            'best_members': Author.objects.best(),
+        }
+
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+
+            if user is not None:
+                login(request, user)
+                return HttpResponseRedirect(reverse('ask:index'), context)
+        else:
+            context['form'] = form
+            return render(request, 'login.html', context)
 
 
 def signup(request):
