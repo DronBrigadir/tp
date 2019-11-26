@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, login
+from django.contrib.auth import logout as django_logout
+from django.contrib.auth.decorators import login_required
 from django.views.generic import View
 from django.urls import reverse
 from ask.models import Tag, Author, Question
@@ -42,20 +44,19 @@ def hot(request):
 
 class LoginView(View):
     def get(self, request):
+        next_url = request.GET.get('next', reverse('ask:index'))
         form = LoginForm()
         context = {
             'popular_tags': Tag.objects.popular(),
             'best_members': Author.objects.best(),
-            'form': form
+            'form': form,
+            'next_url': next_url
         }
         return render(request, 'login.html', context)
 
     def post(self, request):
+        next_url = request.GET.get('next', reverse('ask:index'))
         form = LoginForm(data=request.POST)
-        context = {
-            'popular_tags': Tag.objects.popular(),
-            'best_members': Author.objects.best(),
-        }
 
         if form.is_valid():
             username = form.cleaned_data.get('username')
@@ -64,10 +65,20 @@ class LoginView(View):
 
             if user is not None:
                 login(request, user)
-                return HttpResponseRedirect(reverse('ask:index'), context)
+                return HttpResponseRedirect(next_url)
         else:
-            context['form'] = form
+            context = {
+                'popular_tags': Tag.objects.popular(),
+                'best_members': Author.objects.best(),
+                'next_url': next_url,
+                'form': form
+            }
             return render(request, 'login.html', context)
+
+
+def logout(request):
+    django_logout(request)
+    return HttpResponseRedirect(reverse('ask:index'))
 
 
 def signup(request):
@@ -78,6 +89,7 @@ def signup(request):
     return render(request, 'signup.html', context)
 
 
+@login_required
 def ask(request):
     context = {
         'popular_tags': Tag.objects.popular(),
