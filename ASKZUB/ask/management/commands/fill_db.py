@@ -4,6 +4,7 @@ from django.db.models import Sum
 from faker import Faker
 from random import choice
 from pytz import timezone
+import random
 
 from ask.models import Author, Question, Answer, Tag, QuestionVote, AnswerVote
 
@@ -12,17 +13,19 @@ f = Faker()
 
 class Command(BaseCommand):
 
-    USERS_COUNT = 3
+    USERS_COUNT = 10
     TAGS_COUNT = 10
-    QUESTIONS_COUNT_FOR_ONE_USER = 3
-    ANSWERS_COUNT_FOR_ONE_QUESTION = 3
+    QUESTIONS_COUNT_FOR_ONE_USER = 5
+    MAX_ANSWERS_FOR_ONE_QUESTION = 5
     TAGS_COUNT_FOR_ONE_QUESTION = 3
 
     def authors_generator(self):
         for _ in range(0, self.USERS_COUNT):
-            u = User.objects.create(username=f.name(),
-                                    password=f.password(),
-                                    email=f.free_email())
+            u = User.objects.create(username=f.user_name(),
+                                    email=f.free_email(),
+                                    first_name=f.first_name(),
+                                    last_name=f.last_name())
+            u.set_password(f.password())
             u.save()
             a = Author.objects.create(user=u)
             a.save()
@@ -43,7 +46,7 @@ class Command(BaseCommand):
         question_ids = list(Question.objects.values_list('id', flat=True))
         moscow_tz = timezone('Europe/Moscow')
         for q_id in question_ids:
-            for _ in range(0, self.ANSWERS_COUNT_FOR_ONE_QUESTION):
+            for _ in range(0, random.randint(1, self.MAX_ANSWERS_FOR_ONE_QUESTION)):
                 a = Answer.objects.create(author_id=choice(author_ids),
                                           question_id=q_id,
                                           content=f.text(256),
