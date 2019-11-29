@@ -26,58 +26,47 @@
 #include <cassert>
 
 
-template <typename T>
+template <typename T, class Comparator = std::less<T>>
 class AvlTree {
     struct Node {
         T value;
         Node *left;
         Node *right;
         unsigned char height;
+        unsigned int quantity;
 
-        explicit Node(const T &value) : value(value), left(nullptr), right(nullptr), height(1) {}
+        explicit Node(const T &value) : value(value), left(nullptr), right(nullptr), height(1), quantity(1) {}
     };
 public:
-    AvlTree() : root(nullptr) {}
+    AvlTree() : root(nullptr), cmp(Comparator()) {}
     ~AvlTree() {
         destroyTree(root);
     }
 
-    bool Has(const T &value) {
-        Node *tmp = root;
-        while (tmp) {
-            if (tmp->value == value)
-                return true;
-
-            if (tmp->value < value) {
-                tmp = tmp->right;
-            }
-            else {
-                tmp = tmp->left;
-            }
-        }
-        return false;
+    unsigned int Add(const T &value) {
+        unsigned int position = 0;
+        root = addInternal(root, value, position);
+        return position;
     }
-
-    void Add(const T &value) {
-        root = addInternal(root, value);
-    }
-    void Remove(const T &value) {
-        root = removeInternal(root, value);
+    void Remove(const int position) {
+        root = removeInternal(root, position);
     }
 
 private:
     Node *root;
+    Comparator cmp;
 
-    Node* removeInternal(Node *node, const T &value) {
+    Node* removeInternal(Node *node, const unsigned int position) {
         if (!node) {
             return nullptr;
         }
 
-        if (node->value < value) {
-            node->right = removeInternal(node->right, value);
+        unsigned int current_pos = getQuantity(node->right);
+        if (cmp(current_pos, position)) {
+            node->left = removeInternal(node->left, position - current_pos - 1);
         }
-        else if (node->value > value) {
-            node->left = removeInternal(node->left, value);
+        else if (current_pos != position) {
+            node->right = removeInternal(node->right, position);
         }
         else {
             Node *left = node->left;
@@ -90,7 +79,7 @@ private:
 
             if (getHeight(left) > getHeight(right)) {
                 Node *max = findMax(left);
-                max-left = removeMax(left);
+                max->left = removeMax(left);
                 max->right = right;
 
                 return doBalance(max);
@@ -136,16 +125,18 @@ private:
         return doBalance(node);
     }
 
-    Node* addInternal(Node *node, const T &value) {
+    Node* addInternal(Node *node, const T &value, unsigned int &position) {
         if (!node) {
             return new Node(value);
         }
 
-        if (node->value <= value) {
-            node->right = addInternal(node->right, value);
+        node->quantity++;
+        if (cmp(node->value, value) || node->value == value) {
+            node->right = addInternal(node->right, value, position);
         }
         else {
-            node->left = addInternal(node->left, value);
+            position += getQuantity(node->right) + 1;
+            node->left = addInternal(node->left, value, position);
         }
 
         return doBalance(node);
@@ -153,6 +144,7 @@ private:
 
     Node* doBalance(Node *node) {
         fixHeight(node);
+        fixQuantity(node);
 
         switch (getBalance(node)) {
             case 2:
@@ -182,8 +174,16 @@ private:
         node->height = std::max(getHeight(node->left), getHeight(node->right)) + 1;
     }
 
+    void fixQuantity(Node *node) {
+        node->quantity = getQuantity(node->left) + getQuantity(node->right) + 1;
+    }
+
     unsigned char getHeight(Node *node) {
         return node ? node->height : 0;
+    }
+
+    unsigned int getQuantity(Node *node) {
+        return node ? node->quantity : 0;
     }
 
     Node* rotateLeft(Node *node) {
@@ -193,6 +193,8 @@ private:
 
         fixHeight(node);
         fixHeight(tmp);
+        fixQuantity(node);
+        fixQuantity(tmp);
 
         return tmp;
     }
@@ -204,6 +206,8 @@ private:
 
         fixHeight(node);
         fixHeight(tmp);
+        fixQuantity(node);
+        fixQuantity(tmp);
 
         return tmp;
     }
@@ -219,6 +223,27 @@ private:
 };
 
 void run(std::istream &in, std::ostream &out) {
+    AvlTree<int> tree = AvlTree<int>();
+
+    int n = 0;
+    in >> n;
+
+    int op = 0;
+    int val = 0;
+
+    for (int i = 0; i < n; i++) {
+        in >> op >> val;
+        switch (op) {
+            case 1:
+                out << tree.Add(val) << std::endl;
+                break;
+            case 2:
+                tree.Remove(val);
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 void test() {
@@ -247,10 +272,39 @@ void test() {
 
         assert(output.str() == answer.str());
     }
+    {
+        std::stringstream input;
+        input << "7" << std::endl;
+        input << "1 100" << std::endl;
+        input << "1 200" << std::endl;
+        input << "1 150" << std::endl;
+        input << "1 50" << std::endl;
+        input << "1 300" << std::endl;
+        input << "2 1" << std::endl;
+        input << "1 170" << std::endl;
+
+        std::stringstream output;
+
+        run(input, output);
+
+        std::cout << "Output:\n" << output.str();
+
+        std::stringstream answer;
+        answer << "0" << std::endl;
+        answer << "0" << std::endl;
+        answer << "1" << std::endl;
+        answer << "3" << std::endl;
+        answer << "0" << std::endl;
+        answer << "1" << std::endl;
+
+        std::cout << "Answer:\n" << answer.str();
+
+        assert(output.str() == answer.str());
+    }
 }
 
 int main () {
-    test();
-    //run(std::cin, std::cout);
+    //test();
+    run(std::cin, std::cout);
     return 0;
 }
