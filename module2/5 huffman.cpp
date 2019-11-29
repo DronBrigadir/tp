@@ -3,6 +3,8 @@
 #include <map>
 #include <queue>
 #include <memory>
+#include <bitset>
+#include <stack>
 
 //#include "Huffman.h"
 
@@ -19,19 +21,68 @@ interface IOutputStream {
     virtual void Write(byte value) = 0;
 };
 
+class BitWriter
+{
+public:
+    BitWriter() : bitCount(0) {}
+
+    void WriteBit(byte bit) {
+        if (bitCount % 8 == 0)
+            buffer.push_back(0);
+        if (bit)
+        {
+            buffer[bitCount/8] |= 1 << (7 - bitCount % 8);
+        }
+        bitCount++;
+    }
+
+    void WriteByte(byte byteVal) {
+        if (bitCount % 8 == 0)
+            buffer.push_back(byteVal);
+        else
+        {
+            int offset = bitCount % 8;
+            buffer[bitCount/8] |= byteVal >> offset;
+            buffer.push_back(byteVal << (8 - offset));
+        }
+        bitCount += 8;
+    }
+
+    std::vector<byte> GetBuffer() const {
+        return buffer;
+    }
+
+    size_t GetBitCount() const {
+        return bitCount;
+    }
+private:
+    std::vector<byte> buffer;
+    size_t bitCount;
+};
+
+void visualize(const std::vector<byte> &buffer) {
+    for (auto &byte: buffer) {
+        std::cout << std::bitset<8>(byte) << "|";
+    }
+    std::cout << std::endl;
+}
+
 struct Node {
     size_t freq;
     byte value;
     Node *left;
     Node *right;
+    std::string code;
 
-    explicit Node(const size_t freq, const byte value) : freq(freq), value(value), left(nullptr), right(nullptr) {}
+    explicit Node(const size_t freq, const byte value) :
+        freq(freq), value(value), left(nullptr), right(nullptr), code("") {}
 
-    Node() : freq(0), value(0), left(nullptr), right(nullptr) {}
+    Node() : freq(0), value(0), left(nullptr), right(nullptr), code("") {}
 
     Node(const Node &rhs) {
         freq = rhs.freq;
         value = rhs.value;
+        code = rhs.code;
         if (!rhs.left) {
             left = nullptr;
         } else {
@@ -62,6 +113,7 @@ struct Node {
         delete(right);
         freq = rhs.freq;
         value = rhs.value;
+        code = rhs.code;
         if (!rhs.left) {
             left = nullptr;
         } else {
@@ -239,6 +291,41 @@ void MakeEncodeTree(std::unique_ptr<Heap<Node>> &heap, const std::map<byte, size
     }
 }
 
+void createCodedTable(std::unique_ptr<std::map<byte, std::string>> &table, Node &root) {
+    std::stack<Node*> buf;
+    buf.push(&root);
+
+    while (!buf.empty()) {
+        Node *tmp = buf.top();
+        buf.pop();
+
+        if (tmp->right) {
+            tmp->right->code += tmp->code + "1";
+            buf.push(tmp->right);
+        }
+        if (tmp->left) {
+            tmp->left->code += tmp->code + "0";
+            buf.push(tmp->left);
+        }
+    }
+
+    buf.push(&root);
+    while (!buf.empty()) {
+        Node *tmp = buf.top();
+        buf.pop();
+
+        if (!tmp->right && !tmp->left) {
+            (*table)[tmp->value] = tmp->code;
+        }
+        if (tmp->right) {
+            buf.push(tmp->right);
+        }
+        if (tmp->left) {
+            buf.push(tmp->left);
+        }
+    }
+}
+
 void Encode(IInputStream &original, IOutputStream &compressed) {
     auto originalCopy = std::make_unique<std::queue<byte>>();
     std::map<byte, size_t> byteFreq = FreqCalc(original, originalCopy);
@@ -246,6 +333,10 @@ void Encode(IInputStream &original, IOutputStream &compressed) {
 
     auto encodingTree = std::make_unique<Heap<Node>>();
     MakeEncodeTree(encodingTree, byteFreq);
+
+    auto codedTable = std::make_unique<std::map<byte, std::string>>();
+    Node root = encodingTree->ExtractRoot();
+    createCodedTable(codedTable, root);
 }
 
 void Decode(IInputStream &compressed, IOutputStream &original) {
@@ -269,6 +360,11 @@ int main () {
     auto encodingTree = std::make_unique<Heap<Node>>();
     MakeEncodeTree(encodingTree, byteFreq);
 
-    Node tmp = encodingTree->ExtractRoot();
-    std::cout << tmp;
+    auto codedTable = std::make_unique<std::map<byte, std::string>>();
+    Node root = encodingTree->ExtractRoot();
+    createCodedTable(codedTable, root);
+
+    for (auto iter : *codedTable) {
+        std::cout << iter.first << ' ' << iter.second << std::endl;
+    }
 }
