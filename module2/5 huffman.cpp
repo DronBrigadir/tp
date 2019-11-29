@@ -31,7 +31,7 @@ public:
             buffer.push_back(0);
         if (bit)
         {
-            buffer[bitCount/8] |= 1 << (7 - bitCount % 8);
+            buffer[bitCount / 8] |= 1 << (7 - bitCount % 8);
         }
         bitCount++;
     }
@@ -42,7 +42,7 @@ public:
         else
         {
             int offset = bitCount % 8;
-            buffer[bitCount/8] |= byteVal >> offset;
+            buffer[bitCount / 8] |= byteVal >> offset;
             buffer.push_back(byteVal << (8 - offset));
         }
         bitCount += 8;
@@ -299,6 +299,9 @@ void createCodedTable(std::unique_ptr<std::map<byte, std::string>> &table, Node 
         Node *tmp = buf.top();
         buf.pop();
 
+        if (!tmp->right && !tmp->left) {
+            (*table)[tmp->value] = tmp->code;
+        }
         if (tmp->right) {
             tmp->right->code += tmp->code + "1";
             buf.push(tmp->right);
@@ -308,35 +311,81 @@ void createCodedTable(std::unique_ptr<std::map<byte, std::string>> &table, Node 
             buf.push(tmp->left);
         }
     }
+}
 
-    buf.push(&root);
-    while (!buf.empty()) {
-        Node *tmp = buf.top();
-        buf.pop();
+void WriteTree(std::shared_ptr<BitWriter> &dst, Node *node) {
+    if (!node->right && !node->left) {
+        dst->WriteBit(1);
+        dst->WriteByte(node->value);
+        return;
+    }
+    if (node->left) {
+        WriteTree(dst, node->left);
+    }
+    if (node->right) {
+        WriteTree(dst, node->right);
+    }
 
-        if (!tmp->right && !tmp->left) {
-            (*table)[tmp->value] = tmp->code;
-        }
-        if (tmp->right) {
-            buf.push(tmp->right);
-        }
-        if (tmp->left) {
-            buf.push(tmp->left);
+    dst->WriteBit(0);
+}
+
+void WriteSequence(std::shared_ptr<BitWriter> &dst, std::unique_ptr<std::queue<byte>> &src,
+                   std::unique_ptr<std::map<byte, std::string>> &table) {
+    while (!src->empty()) {
+        byte tmp = src->front();
+        src->pop();
+
+        std::string code = (*table)[tmp];
+
+        for (size_t i = 0; i < code.size(); i++) {
+            if (code[i] == '0') {
+                dst->WriteBit(0);
+            } else {
+                dst->WriteBit(1);
+            }
         }
     }
 }
 
 void Encode(IInputStream &original, IOutputStream &compressed) {
+    // Копирование входных данных
     auto originalCopy = std::make_unique<std::queue<byte>>();
-    std::map<byte, size_t> byteFreq = FreqCalc(original, originalCopy);
-    //size_t numberOfChars = byteFreq.size();
 
+    // Определение частотности символов
+    std::map<byte, size_t> byteFreq = FreqCalc(original, originalCopy);
+
+    size_t numberOfChars = byteFreq.size();
+
+    // Получение дерева кодирование
     auto encodingTree = std::make_unique<Heap<Node>>();
     MakeEncodeTree(encodingTree, byteFreq);
 
+    // Получение таблицы соответсвие кодов и символов
     auto codedTable = std::make_unique<std::map<byte, std::string>>();
     Node root = encodingTree->ExtractRoot();
     createCodedTable(codedTable, root);
+
+    // Записываем дерево
+    auto bw = std::make_shared<BitWriter>();
+    bw->WriteByte(numberOfChars);
+    WriteTree(bw, &root);
+
+    // Записываем последовательность
+    WriteSequence(bw, originalCopy, codedTable);
+
+    // Записываем количество значащих бит в последнем байте (пишем в байт за последним)
+    unsigned char numberOfSignificantBits = bw->GetBitCount() % 8;
+    // 0 означает 8 значащих битов
+    numberOfSignificantBits = numberOfSignificantBits == 0 ? 8 : numberOfSignificantBits;
+    for (int i = 0; i < 8 - numberOfSignificantBits; i++) {
+        bw->WriteBit(0);
+    }
+    bw->WriteByte(numberOfSignificantBits);
+
+    auto sequence = bw->GetBuffer();
+    for (auto &byte : sequence) {
+        compressed.Write(byte);
+    }
 }
 
 void Decode(IInputStream &compressed, IOutputStream &original) {
@@ -350,6 +399,8 @@ int main () {
     byteFreq['c'] = 1;
     byteFreq['d'] = 1;
     byteFreq['r'] = 2;
+
+    size_t numberOfChars = byteFreq.size();
 
     for (auto iter : byteFreq) {
         std::cout << iter.first << ' ' << iter.second << std::endl;
@@ -367,4 +418,46 @@ int main () {
     for (auto iter : *codedTable) {
         std::cout << iter.first << ' ' << iter.second << std::endl;
     }
+
+    auto bw = std::make_shared<BitWriter>();
+    bw->WriteByte(numberOfChars);
+
+    WriteTree(bw, &root);
+
+    visualize(bw->GetBuffer());
+
+    std::cout << "a: " << std::bitset<8>('a') << std::endl;
+    std::cout << "b: " << std::bitset<8>('b') << std::endl;
+    std::cout << "c: " << std::bitset<8>('c') << std::endl;
+    std::cout << "d: " << std::bitset<8>('d') << std::endl;
+    std::cout << "r: " << std::bitset<8>('r') << std::endl;
+
+    auto originalCopy = std::make_unique<std::queue<byte>>();
+    originalCopy->push('a');
+    originalCopy->push('b');
+    originalCopy->push('r');
+    originalCopy->push('a');
+    originalCopy->push('c');
+    originalCopy->push('a');
+    originalCopy->push('d');
+    originalCopy->push('a');
+    originalCopy->push('b');
+    originalCopy->push('r');
+    originalCopy->push('a');
+
+    WriteSequence(bw, originalCopy, codedTable);
+
+    visualize(bw->GetBuffer());
+
+    unsigned char numberOfSignificantBits = bw->GetBitCount() % 8;
+    numberOfSignificantBits = numberOfSignificantBits == 0 ? 8 : numberOfSignificantBits;
+
+    std::cout << "true number: " << numberOfSignificantBits << std::endl;
+
+    for (int i = 0; i < 8 - numberOfSignificantBits; i++) {
+        bw->WriteBit(0);
+    }
+    bw->WriteByte(numberOfSignificantBits);
+
+    visualize(bw->GetBuffer());
 }
