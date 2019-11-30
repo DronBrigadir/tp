@@ -5,26 +5,14 @@
 #include <memory>
 #include <bitset>
 #include <stack>
+#include <deque>
 
-//#include "Huffman.h"
-
-typedef unsigned char byte;
-
-#define interface struct
-
-interface IInputStream {
-    // Возвращает false, если поток закончился
-    virtual bool Read(byte& value) = 0;
-};
-
-interface IOutputStream {
-    virtual void Write(byte value) = 0;
-};
+#include "Huffman.h"
 
 class BitWriter
 {
 public:
-    BitWriter() : bitCount(0) {}
+    BitWriter() : bitCount(0), curByte(0) {}
 
     void WriteBit(byte bit) {
         if (bitCount % 8 == 0)
@@ -55,9 +43,19 @@ public:
     size_t GetBitCount() const {
         return bitCount;
     }
+
+    bool ReadByte(byte &byteVal) {
+        if (curByte >= buffer.size()) {
+            return false;
+        }
+
+        byteVal = buffer[curByte++];
+        return true;
+    }
 private:
     std::vector<byte> buffer;
     size_t bitCount;
+    size_t curByte;
 };
 
 void visualize(const std::vector<byte> &buffer) {
@@ -353,8 +351,11 @@ void Encode(IInputStream &original, IOutputStream &compressed) {
 
     // Определение частотности символов
     std::map<byte, size_t> byteFreq = FreqCalc(original, originalCopy);
+    if (originalCopy->empty()) {
+        return;
+    }
 
-    size_t numberOfChars = byteFreq.size();
+    size_t alphabetPower = byteFreq.size();
 
     // Получение дерева кодирование
     auto encodingTree = std::make_unique<Heap<Node>>();
@@ -367,14 +368,14 @@ void Encode(IInputStream &original, IOutputStream &compressed) {
 
     // Записываем дерево
     auto bw = std::make_shared<BitWriter>();
-    bw->WriteByte(numberOfChars);
+    bw->WriteByte(alphabetPower);
     WriteTree(bw, &root);
 
     // Записываем последовательность
     WriteSequence(bw, originalCopy, codedTable);
 
     // Записываем количество значащих бит в последнем байте (пишем в байт за последним)
-    unsigned char numberOfSignificantBits = bw->GetBitCount() % 8;
+    int numberOfSignificantBits = bw->GetBitCount() % 8;
     // 0 означает 8 значащих битов
     numberOfSignificantBits = numberOfSignificantBits == 0 ? 8 : numberOfSignificantBits;
     for (int i = 0; i < 8 - numberOfSignificantBits; i++) {
@@ -388,76 +389,119 @@ void Encode(IInputStream &original, IOutputStream &compressed) {
     }
 }
 
-void Decode(IInputStream &compressed, IOutputStream &original) {
+Node createTree(IInputStream &src, const size_t &alphabetPower, std::bitset<8> &byte, int &curBit) {
+    std::stack<Node> stack;
+    unsigned char byteValue;
+    src.Read(byteValue);
+    byte = std::bitset<8>(byteValue);
+    curBit = 7;
 
+    size_t readChar = 0;  // Количество прочитанных символов алфавита
+    while (readChar != alphabetPower) {
+        if (curBit == -1) {
+            curBit = 7;
+            src.Read(byteValue);
+            byte = std::bitset<8>(byteValue);
+        }
+        if (byte[curBit--] == 1) {
+            readChar++;
+
+            std::bitset<8> charValue;
+            for (int i = 7; i >= 0; i--) {
+                if (curBit == -1) {
+                    curBit = 7;
+                    src.Read(byteValue);
+                    byte = std::bitset<8>(byteValue);
+                }
+                charValue[i] = byte[curBit--];
+            }
+            unsigned long tmpCharValue = charValue.to_ulong();
+            Node node = Node(0, static_cast<unsigned char>(tmpCharValue));
+            stack.push(node);
+        } else {
+            Node first = stack.top();
+            stack.pop();
+            Node second = stack.top();
+            stack.pop();
+
+            Node newNode = Node(0, 0);
+            newNode.right = new Node(first);
+            newNode.left = new Node(second);
+
+            stack.push(newNode);
+        }
+    }
+
+    while (stack.size() > 1) {
+        if (curBit == -1) {
+            curBit = 7;
+            src.Read(byteValue);
+            byte = std::bitset<8>(byteValue);
+        }
+        curBit--;
+
+        Node first = stack.top();
+        stack.pop();
+        Node second = stack.top();
+        stack.pop();
+
+        Node newNode = Node(0, 0);
+        newNode.right = new Node(first);
+        newNode.left = new Node(second);
+
+        stack.push(newNode);
+    }
+
+    return stack.top();
 }
 
-int main () {
-    std::map<byte , size_t> byteFreq;
-    byteFreq['a'] = 5;
-    byteFreq['b'] = 2;
-    byteFreq['c'] = 1;
-    byteFreq['d'] = 1;
-    byteFreq['r'] = 2;
+void Decode(IInputStream &compressed, IOutputStream &original) {
+    // Получаем мощность алфавита
+    byte tmpAlphabetPower;
+    if (!compressed.Read(tmpAlphabetPower)) {
+        return;
+    }
+    size_t alphabetPower = tmpAlphabetPower;
 
-    size_t numberOfChars = byteFreq.size();
+    // Получаем дерево кодирования
+    std::bitset<8> byte;
+    int curBit;
+    Node root = createTree(compressed, alphabetPower, byte, curBit);
 
-    for (auto iter : byteFreq) {
-        std::cout << iter.first << ' ' << iter.second << std::endl;
+    // Получаем последовательность закодированных символов и количество значащих бит в последнем байте
+    unsigned char byteValue;
+    if (curBit == -1) {
+        curBit = 7;
+        compressed.Read(byteValue);
+        byte = std::bitset<8>(byteValue);
     }
 
-    std::cout << "Number of chars: " << byteFreq.size() << std::endl;
-
-    auto encodingTree = std::make_unique<Heap<Node>>();
-    MakeEncodeTree(encodingTree, byteFreq);
-
-    auto codedTable = std::make_unique<std::map<byte, std::string>>();
-    Node root = encodingTree->ExtractRoot();
-    createCodedTable(codedTable, root);
-
-    for (auto iter : *codedTable) {
-        std::cout << iter.first << ' ' << iter.second << std::endl;
+    auto sequence = std::vector<std::bitset<8>>();
+    sequence.push_back(byte);
+    while (compressed.Read(byteValue)) {
+        byte = std::bitset<8>(byteValue);
+        sequence.push_back(byte);
     }
 
-    auto bw = std::make_shared<BitWriter>();
-    bw->WriteByte(numberOfChars);
+    int numberOfSignificantBits = sequence.back().to_ulong();
+    sequence.pop_back();
 
-    WriteTree(bw, &root);
-
-    visualize(bw->GetBuffer());
-
-    std::cout << "a: " << std::bitset<8>('a') << std::endl;
-    std::cout << "b: " << std::bitset<8>('b') << std::endl;
-    std::cout << "c: " << std::bitset<8>('c') << std::endl;
-    std::cout << "d: " << std::bitset<8>('d') << std::endl;
-    std::cout << "r: " << std::bitset<8>('r') << std::endl;
-
-    auto originalCopy = std::make_unique<std::queue<byte>>();
-    originalCopy->push('a');
-    originalCopy->push('b');
-    originalCopy->push('r');
-    originalCopy->push('a');
-    originalCopy->push('c');
-    originalCopy->push('a');
-    originalCopy->push('d');
-    originalCopy->push('a');
-    originalCopy->push('b');
-    originalCopy->push('r');
-    originalCopy->push('a');
-
-    WriteSequence(bw, originalCopy, codedTable);
-
-    visualize(bw->GetBuffer());
-
-    unsigned char numberOfSignificantBits = bw->GetBitCount() % 8;
-    numberOfSignificantBits = numberOfSignificantBits == 0 ? 8 : numberOfSignificantBits;
-
-    std::cout << "true number: " << numberOfSignificantBits << std::endl;
-
-    for (int i = 0; i < 8 - numberOfSignificantBits; i++) {
-        bw->WriteBit(0);
+    Node *tmpRoot = new Node(root);
+    Node *tmpNode = tmpRoot;
+    for (auto iter = sequence.begin(); iter < sequence.end(); iter++) {
+        byte = *iter;
+        for (int i = curBit; i >= (iter == --sequence.end() ? 8 - numberOfSignificantBits : 0); i--) {
+            if (!tmpNode->left && !tmpNode->right) {
+                original.Write(tmpNode->value);
+                tmpNode = tmpRoot;
+            }
+            if (byte[i] == 1) {
+                tmpNode = tmpNode->right;
+            } else {
+                tmpNode = tmpNode->left;
+            }
+        }
+        curBit = 7;
     }
-    bw->WriteByte(numberOfSignificantBits);
-
-    visualize(bw->GetBuffer());
+    original.Write(tmpNode->value);
 }
