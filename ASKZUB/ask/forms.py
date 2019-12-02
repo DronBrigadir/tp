@@ -48,8 +48,7 @@ class QuestionForm(forms.ModelForm):
             obj.save()
 
         tags = self.cleaned_data.get('tags')
-        tags_list = tags.split(',')
-        tags_list = [x.lower() for x in tags_list]
+        tags_list = [x.lower().strip() for x in tags.split(',') if x]
 
         for tag in tags_list:
             if Tag.objects.filter(name=tag).exists():
