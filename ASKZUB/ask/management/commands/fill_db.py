@@ -62,7 +62,7 @@ class Command(BaseCommand):
             while Tag.objects.filter(name=name).exists():
                 name = f.color_name()
 
-            t = Tag.objects.create(name=name)
+            t = Tag.objects.create(name=name.lower())
             t.save()
 
         question_ids = list(Question.objects.values_list('id', flat=True))
