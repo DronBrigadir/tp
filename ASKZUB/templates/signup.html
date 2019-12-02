@@ -1,53 +1,15 @@
 {% extends "extends/base.html" %}
 
 {% block content %}
-    <div class="container-fluid">
+    <div class="container-fluid offset-3">
         <div class="row m-auto">
-            <h2>Registration</h2>
+            <h2 class="text-center">Registration</h2>
         </div>
 
-        <form>
-            <div class="form-group row">
-                <label for="inputLogin" class="col-sm-3 col-form-label">Login</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" id="inputLogin" placeholder="Enter yout login here">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="inputEmail" class="col-sm-3 col-form-label">E-mail</label>
-                <div class="col-sm-8">
-                    <input type="email" class="form-control" id="inputEmail" placeholder="Enter your Email here">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="inputNickName" class="col-sm-3 col-form-label">NickName</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" id="inputNickName" placeholder="Enter your nickname here">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="inputPassword" class="col-sm-3 col-form-label">Password</label>
-                <div class="col-sm-8">
-                    <input type="password" class="form-control" id="inputPassword" value="qwerty">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="repeatPassword" class="col-sm-3 col-form-label">Repeat password</label>
-                <div class="col-sm-8">
-                    <input type="password" class="form-control" id="repeatPassword" value="qwerty">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="chooseFile" class="col-sm-3 col-form-label">Upload Avatar</label>
-                <div class="col-sm-8">
-                    <input type="file" class="form-control-file" id="chooseFile">
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-8 offset-sm-3">
-                    <button type="submit" class="btn btn-outline-primary">Register</button>
-                </div>
-            </div>
+        <form action="{% url 'ask:signup' %}" method="post" class="mt-2">
+            {% csrf_token %}
+            {% include "includes/render_form.html" %}
+            <button type="submit" class="btn btn-primary">Sign Up</button>
         </form>
     </div>
 {% endblock %}
