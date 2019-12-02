@@ -2,12 +2,12 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout as django_logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import View
 from django.urls import reverse
 from ask.models import Tag, Author, Question
 from ask.utils.paginator import paginate
-from ask.forms import LoginForm
+from ask.forms import LoginForm, QuestionForm
 
 
 def index(request):
@@ -89,13 +89,29 @@ def signup(request):
     return render(request, 'signup.html', context)
 
 
-@login_required
-def ask(request):
-    context = {
-        'popular_tags': Tag.objects.popular(),
-        'best_members': Author.objects.best()
-    }
-    return render(request, 'ask.html', context)
+class AskView(LoginRequiredMixin, View):
+    def get(self, request):
+        form = QuestionForm(request.user)
+        context = {
+            'popular_tags': Tag.objects.popular(),
+            'best_members': Author.objects.best(),
+            'form': form
+        }
+        return render(request, 'ask.html', context)
+
+    def post(self, request):
+        form = QuestionForm(request.user, data=request.POST)
+
+        if form.is_valid():
+            q = form.save()
+            return HttpResponseRedirect(reverse('ask:question', kwargs={'question_id': q.pk}))
+        else:
+            context = {
+                'popular_tags': Tag.objects.popular(),
+                'best_members': Author.objects.best(),
+                'form': form
+            }
+            return render(request, 'ask.html', context)
 
 
 def question(request, question_id):
