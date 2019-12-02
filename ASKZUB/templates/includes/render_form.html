@@ -5,14 +5,14 @@
 {% endfor %}
 
 {% for field in form.visible_fields %}
-    <div class="form-group row">
+    <div class="form-group">
         {% if field.errors %}
             <div class="invalid-feedback">
                 {{ field.errors }}
             </div>
         {% endif %}
 
-        <label for="{{ field.id_for_label }}" class="col-sm-2 col-form-label">{{ field.label }}</label>
+        <label for="{{ field.id_for_label }}" class="col-form-label">{{ field.label }}</label>
         {{ field }}
     </div>
 {% endfor %}
