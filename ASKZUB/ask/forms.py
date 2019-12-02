@@ -88,3 +88,32 @@ class AnswerForm(forms.ModelForm):
 
         if commit:
             obj.save()
+
+
+class RegistrationForm(forms.ModelForm):
+    confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control col-sm-6'}))
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'username', 'password']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control col-sm-6'}),
+            'password': forms.PasswordInput(attrs={'class': 'form-control col-sm-6'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control col-sm-6', 'required': True}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control col-sm-6', 'required': True}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control col-sm-6', 'required': True})
+        }
+
+    def clean(self):
+        confirm_password = self.cleaned_data.get('confirm_password')
+        password = self.cleaned_data.get('password')
+
+        if password != confirm_password:
+            raise forms.ValidationError('Passwords do not match')
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        obj.set_password(obj.password)
+        obj.save()
+
+        return obj
