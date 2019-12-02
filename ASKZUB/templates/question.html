@@ -14,16 +14,14 @@
             </div>
         {% endfor %}
 
-        <hr style="height: 2px; background-color: black">
-
         {% include "includes/pagination.html" with items=answers %}
 
-        <div class="row comment">
-            <div class="form-group" style="width: 50%">
-                <label></label>
-                <textarea class="form-control" rows="5" placeholder="Write your answer..."></textarea>
-                <button class="btn btn-outline-success my-4">Answer</button>
-            </div>
+        <div class="row">
+            <form action="{% url 'ask:question' question_id=question.id %}" method="post">
+                {% csrf_token %}
+                {% include "includes/render_form.html" %}
+                <button type="submit" class="btn btn-primary">Answer</button>
+            </form>
         </div>
     </div>
 {% endblock %}
