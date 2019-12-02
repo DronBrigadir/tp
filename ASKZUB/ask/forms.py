@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from ask.models import Question, Author, Tag
+from ask.models import Question, Author, Tag, Answer
 
 
 class LoginForm(forms.ModelForm):
@@ -60,3 +60,31 @@ class QuestionForm(forms.ModelForm):
                 obj.tag_set.add(t)
 
         return obj
+
+
+class AnswerForm(forms.ModelForm):
+
+    class Meta:
+        model = Answer
+        fields = ['content']
+
+        labels = {
+            'content': 'Your Answer'
+        }
+
+        widgets = {
+            'content': forms.Textarea(attrs={'class': 'form-control', 'cols': '100%', 'rows': '5'})
+        }
+
+    def __init__(self, user, question_id, *args, **kwargs):
+        self.user = user
+        self.question_id = question_id
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        obj.author_id = Author.objects.get(user_id=self.user.pk).id
+        obj.question_id = self.question_id
+
+        if commit:
+            obj.save()
