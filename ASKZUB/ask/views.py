@@ -3,11 +3,13 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout as django_logout
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from django.views.generic import View
 from django.urls import reverse
 from ask.models import Tag, Author, Question
 from ask.utils.paginator import paginate
-from ask.forms import LoginForm, QuestionForm
+from ask.forms import LoginForm, QuestionForm, AnswerForm
 
 
 def index(request):
@@ -114,17 +116,30 @@ class AskView(LoginRequiredMixin, View):
             return render(request, 'ask.html', context)
 
 
-def question(request, question_id):
-    q = Question.objects.by_id(question_id)
-    page_number = request.GET.get('page', 1)
-    limit = request.GET.get('limit', 5)
-    context = {
-        'popular_tags': Tag.objects.popular(),
-        'best_members': Author.objects.best(),
-        'question': q,
-        'answers': paginate(q.answer_set.all(), limit, page_number)
-    }
-    return render(request, 'question.html', context)
+class QuestionView(View):
+    def get(self, request, question_id, **kwargs):
+        q = Question.objects.by_id(question_id)
+        page_number = request.GET.get('page', 1)
+        limit = request.GET.get('limit', 5)
+        form = kwargs.get('form', AnswerForm(request.user, question_id))
+        context = {
+            'popular_tags': Tag.objects.popular(),
+            'best_members': Author.objects.best(),
+            'question': q,
+            'answers': paginate(q.answer_set.all(), limit, page_number),
+            'form': form
+        }
+        return render(request, 'question.html', context)
+
+    @method_decorator(login_required)
+    def post(self, request, question_id):
+        form = AnswerForm(request.user, question_id, data=request.POST)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('ask:question', kwargs={'question_id': question_id}))
+        else:
+            return self.get(request, question_id, form=form)
 
 
 def tag(request, tag_name):
