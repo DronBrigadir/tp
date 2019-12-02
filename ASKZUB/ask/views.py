@@ -9,7 +9,7 @@ from django.views.generic import View
 from django.urls import reverse
 from ask.models import Tag, Author, Question
 from ask.utils.paginator import paginate
-from ask.forms import LoginForm, QuestionForm, AnswerForm
+from ask.forms import LoginForm, QuestionForm, AnswerForm, RegistrationForm
 
 
 def index(request):
@@ -83,12 +83,27 @@ def logout(request):
     return HttpResponseRedirect(reverse('ask:index'))
 
 
-def signup(request):
-    context = {
-        'popular_tags': Tag.objects.popular(),
-        'best_members': Author.objects.best()
-    }
-    return render(request, 'signup.html', context)
+class SignUpView(View):
+    def get(self, request, **kwargs):
+        form = kwargs.get('form', RegistrationForm())
+        context = {
+            'popular_tags': Tag.objects.popular(),
+            'best_members': Author.objects.best(),
+            'form': form
+        }
+        return render(request, 'signup.html', context)
+
+    def post(self, request):
+        form = RegistrationForm(data=request.POST)
+
+        if form.is_valid():
+            user = form.save()
+            a = Author.objects.create(user=user)
+            a.save()
+            login(request, user)
+            return HttpResponseRedirect(reverse('ask:index'))
+        else:
+            return self.get(request, form=form)
 
 
 class AskView(LoginRequiredMixin, View):
