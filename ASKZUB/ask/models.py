@@ -55,7 +55,7 @@ class Answer(models.Model):
     author = models.ForeignKey('Author', on_delete=models.CASCADE)
     question = models.ForeignKey('Question', on_delete=models.CASCADE)
     rating = models.IntegerField(default=0)
-    content = models.TextField(default='Answer on question')
+    content = models.TextField()
     creation_time = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
