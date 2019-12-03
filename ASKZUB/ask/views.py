@@ -9,7 +9,7 @@ from django.views.generic import View
 from django.urls import reverse
 from ask.models import Tag, Author, Question
 from ask.utils.paginator import paginate
-from ask.forms import LoginForm, QuestionForm, AnswerForm, RegistrationForm
+from ask.forms import LoginForm, QuestionForm, AnswerForm, RegistrationForm, ProfileForm
 
 
 def index(request):
@@ -97,12 +97,10 @@ class SignUpView(View):
         return render(request, 'signup.html', context)
 
     def post(self, request):
-        form = RegistrationForm(data=request.POST)
+        form = RegistrationForm(data=request.POST, files=request.FILES)
 
         if form.is_valid():
             user = form.save()
-            a = Author.objects.create(user=user)
-            a.save()
             login(request, user)
             return HttpResponseRedirect(reverse('ask:index'))
         else:
@@ -170,3 +168,14 @@ def tag(request, tag_name):
         'questions_to_show': Question.objects.questions_by_tag(tag_name, page_number, limit)
     }
     return render(request, 'tag.html', context)
+
+
+@login_required
+def profile(request):
+    form = ProfileForm(instance=request.user)
+    context = {
+        'popular_tags': Tag.objects.popular(),
+        'best_members': Author.objects.best(),
+        'form': form
+    }
+    return render(request, 'profile.html', context)
