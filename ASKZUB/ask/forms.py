@@ -25,7 +25,8 @@ class LoginForm(forms.ModelForm):
 
 class QuestionForm(forms.ModelForm):
     tags = forms.CharField(required=False, max_length=128,
-                           widget=forms.TextInput(attrs={'class': 'form-control col-sm-8'}))
+                           widget=forms.TextInput(attrs={'class': 'form-control col-sm-8',
+                                                         'placeholder': 'tag1, tag2, tag3...'}))
 
     class Meta:
         model = Question
