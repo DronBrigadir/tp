@@ -80,7 +80,10 @@ class LoginView(View):
 
 def logout(request):
     django_logout(request)
-    return HttpResponseRedirect(reverse('ask:index'))
+    url = request.META.get('HTTP_REFERER')
+    if url is None:
+        url = reverse('ask:index')
+    return HttpResponseRedirect(url)
 
 
 class SignUpView(View):
