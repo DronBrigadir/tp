@@ -12,6 +12,7 @@ urlpatterns = [
     path('ask/', views.AskView.as_view(), name='ask'),
     path('question/<int:question_id>/', views.QuestionView.as_view(), name='question'),
     path('tag/<str:tag_name>/', views.tag, name='tag'),
-    path('logout/', views.logout, name='logout')
+    path('logout/', views.logout, name='logout'),
+    path('profile/', views.profile, name='profile')
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
