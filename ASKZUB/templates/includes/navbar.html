@@ -13,10 +13,13 @@
             <ul class="list-inline my-auto">
                 {% if user.is_authenticated %}
                     <li>
-                        <span>Hello, {{ user.first_name }}</span>
+                        <span>Hello, </span>
+                        <a href="{% url 'ask:profile' %}">
+                            {{ user.first_name }} {{ user.last_name }}
+                        </a>
                     </li>
                     <li>
-                        <a href="{% url 'ask:logout' %}"><span class="button mr-2">Log out</span></a>
+                        <a href="{% url 'ask:logout' %}">Log out</a>
                     </li>
                 {% else %}
                     <li>
