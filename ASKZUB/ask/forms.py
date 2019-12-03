@@ -64,7 +64,6 @@ class QuestionForm(forms.ModelForm):
 
 
 class AnswerForm(forms.ModelForm):
-
     class Meta:
         model = Answer
         fields = ['content']
@@ -92,18 +91,32 @@ class AnswerForm(forms.ModelForm):
 
 
 class RegistrationForm(forms.ModelForm):
-    confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control col-sm-6'}))
+    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control col-sm-6',
+                                                               'required': True}))
+    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control col-sm-6',
+                                                              'required': True}))
+    email = forms.CharField(widget=forms.EmailInput(attrs={'class': 'form-control col-sm-6',
+                                                           'required': True}))
+    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control col-sm-6',
+                                                             'required': True}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control col-sm-6',
+                                                                 'required': True}))
+    confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control col-sm-6',
+                                                                         'required': True}))
 
     class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'email', 'username', 'password']
-        widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control col-sm-6'}),
-            'password': forms.PasswordInput(attrs={'class': 'form-control col-sm-6'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control col-sm-6', 'required': True}),
-            'first_name': forms.TextInput(attrs={'class': 'form-control col-sm-6', 'required': True}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control col-sm-6', 'required': True})
-        }
+        model = Author
+        fields = ['avatar']
+
+    field_order = [
+            'first_name',
+            'last_name',
+            'email',
+            'username',
+            'password',
+            'confirm_password',
+            'avatar'
+        ]
 
     def clean(self):
         confirm_password = self.cleaned_data.get('confirm_password')
@@ -113,8 +126,29 @@ class RegistrationForm(forms.ModelForm):
             raise forms.ValidationError('Passwords do not match')
 
     def save(self, commit=True):
-        obj = super().save(commit=False)
-        obj.set_password(obj.password)
-        obj.save()
+        u = User.objects.create(username=self.cleaned_data.get('username'),
+                                email=self.cleaned_data.get('email'),
+                                first_name=self.cleaned_data.get('first_name'),
+                                last_name=self.cleaned_data.get('last_name'))
+        u.set_password(self.cleaned_data.get('password'))
+        u.save()
 
-        return obj
+        a = super().save(commit=False)
+        a.user = u
+
+        if commit:
+            a.save()
+
+        return u
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'username']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control col-sm-6', 'readonly': True}),
+            'email': forms.EmailInput(attrs={'class': 'form-control col-sm-6', 'readonly': True}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control col-sm-6', 'readonly': True}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control col-sm-6', 'readonly': True})
+        }
