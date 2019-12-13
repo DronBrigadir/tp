@@ -41,6 +41,6 @@
         </li>
     </ul>
 
-    <a href="{% url 'ask:question' question_id=question.id %}">answers ({{ question.answer_set.count }})</a>
+    <a href="{% url 'ask:question' question_id=question.id %}">answers ({{ question.num_of_answers }})</a>
 
 </div>

@@ -25,10 +25,12 @@ class Author(models.Model):
 
 class QuestionManager(models.Manager):
     def recent(self, page_number, limit):
-        return paginator.paginate(self.order_by('-creation_time'), limit, page_number)
+        return paginator.paginate(
+            self.order_by('-creation_time').annotate(num_of_answers=Count('answer')), limit, page_number)
 
     def hot(self, page_number, limit):
-        return paginator.paginate(self.order_by('-rating'), limit, page_number)
+        return paginator.paginate(
+            self.order_by('-rating').annotate(num_of_answers=Count('answer')), limit, page_number)
 
     def by_id(self, question_id):
         return self.get(pk=question_id)
