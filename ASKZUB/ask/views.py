@@ -16,8 +16,6 @@ def index(request):
     page_number = request.GET.get('page', 1)
     limit = request.GET.get('limit', 5)
     context = {
-        'popular_tags': Tag.objects.popular(),
-        'best_members': Author.objects.best(),
         'questions_to_show': Question.objects.recent(page_number, limit),
         'questions_switcher': {
             'title': 'Hot Questions',
@@ -32,8 +30,6 @@ def hot(request):
     page_number = request.GET.get('page', 1)
     limit = request.GET.get('limit', 5)
     context = {
-        'popular_tags': Tag.objects.popular(),
-        'best_members': Author.objects.best(),
         'questions_to_show': Question.objects.hot(page_number, limit),
         'questions_switcher': {
             'title': 'New Questions',
@@ -49,8 +45,6 @@ class LoginView(View):
         next_url = request.GET.get('next', reverse('ask:index'))
         form = LoginForm()
         context = {
-            'popular_tags': Tag.objects.popular(),
-            'best_members': Author.objects.best(),
             'form': form,
             'next_url': next_url
         }
@@ -70,8 +64,6 @@ class LoginView(View):
                 return HttpResponseRedirect(next_url)
         else:
             context = {
-                'popular_tags': Tag.objects.popular(),
-                'best_members': Author.objects.best(),
                 'next_url': next_url,
                 'form': form
             }
@@ -90,8 +82,6 @@ class SignUpView(View):
     def get(self, request, **kwargs):
         form = kwargs.get('form', RegistrationForm())
         context = {
-            'popular_tags': Tag.objects.popular(),
-            'best_members': Author.objects.best(),
             'form': form
         }
         return render(request, 'signup.html', context)
@@ -111,8 +101,6 @@ class AskView(LoginRequiredMixin, View):
     def get(self, request):
         form = QuestionForm(request.user)
         context = {
-            'popular_tags': Tag.objects.popular(),
-            'best_members': Author.objects.best(),
             'form': form
         }
         return render(request, 'ask.html', context)
@@ -125,8 +113,6 @@ class AskView(LoginRequiredMixin, View):
             return HttpResponseRedirect(reverse('ask:question', kwargs={'question_id': q.pk}))
         else:
             context = {
-                'popular_tags': Tag.objects.popular(),
-                'best_members': Author.objects.best(),
                 'form': form
             }
             return render(request, 'ask.html', context)
@@ -139,8 +125,6 @@ class QuestionView(View):
         limit = request.GET.get('limit', 5)
         form = kwargs.get('form', AnswerForm(request.user, question_id))
         context = {
-            'popular_tags': Tag.objects.popular(),
-            'best_members': Author.objects.best(),
             'question': q,
             'answers': paginate(q.answer_set.all(), limit, page_number),
             'form': form
@@ -163,8 +147,6 @@ def tag(request, tag_name):
     limit = request.GET.get('limit', 5)
     context = {
         'tag_name': tag_name,
-        'popular_tags': Tag.objects.popular(),
-        'best_members': Author.objects.best(),
         'questions_to_show': Question.objects.questions_by_tag(tag_name, page_number, limit)
     }
     return render(request, 'tag.html', context)
@@ -174,8 +156,6 @@ def tag(request, tag_name):
 def profile(request):
     form = ProfileForm(instance=request.user)
     context = {
-        'popular_tags': Tag.objects.popular(),
-        'best_members': Author.objects.best(),
         'form': form
     }
     return render(request, 'profile.html', context)
