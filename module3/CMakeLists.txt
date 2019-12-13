@@ -17,3 +17,4 @@ set(TASK1_SRC
 
 add_executable(task1 ${TASK1_SRC})
 add_executable(task2 ./num_of_min_paths.cpp)
+add_executable(task3 ./cities.cpp)
