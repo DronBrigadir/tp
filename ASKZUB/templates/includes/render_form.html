@@ -6,13 +6,12 @@
 
 {% for field in form.visible_fields %}
     <div class="form-group">
-            {% for error in field.errors %}
-                <div class="invalid-feedback">
-                    {{ error }}
-                </div>
-            {% endfor %}
-
         <label for="{{ field.id_for_label }}" class="col-form-label">{{ field.label }}</label>
         {{ field }}
+        {% for error in field.errors %}
+            <div class="invalid-feedback">
+                {{ error }}
+            </div>
+        {% endfor %}
     </div>
 {% endfor %}
