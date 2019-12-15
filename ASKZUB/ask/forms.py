@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.core.validators import validate_email
 from ask.models import Question, Author, Tag, Answer
 
 
@@ -10,8 +11,8 @@ class LoginForm(forms.ModelForm):
         fields = ['username', 'password']
 
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control col-sm-4'}),
-            'password': forms.PasswordInput(attrs={'class': 'form-control col-sm-4'})
+            'username': forms.TextInput(attrs={'class': 'form-control col-sm-6'}),
+            'password': forms.PasswordInput(attrs={'class': 'form-control col-sm-6'})
         }
 
     def clean(self):
@@ -40,6 +41,12 @@ class QuestionForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         self.user = user
         super().__init__(*args, **kwargs)
+
+    def is_valid(self):
+        ret = forms.Form.is_valid(self)
+        for f in self.errors:
+            self.fields[f].widget.attrs.update({'class': self.fields[f].widget.attrs.get('class', '') + ' is-invalid'})
+        return ret
 
     def save(self, commit=True):
         obj = super().save(commit=False)
@@ -81,6 +88,12 @@ class AnswerForm(forms.ModelForm):
         self.question_id = question_id
         super().__init__(*args, **kwargs)
 
+    def is_valid(self):
+        ret = forms.Form.is_valid(self)
+        for f in self.errors:
+            self.fields[f].widget.attrs.update({'class': self.fields[f].widget.attrs.get('class', '') + ' is-invalid'})
+        return ret
+
     def save(self, commit=True):
         obj = super().save(commit=False)
         obj.author_id = Author.objects.get(user_id=self.user.pk).id
@@ -91,18 +104,13 @@ class AnswerForm(forms.ModelForm):
 
 
 class RegistrationForm(forms.ModelForm):
-    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control col-sm-6',
-                                                               'required': True}))
-    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control col-sm-6',
-                                                              'required': True}))
-    email = forms.CharField(widget=forms.EmailInput(attrs={'class': 'form-control col-sm-6',
-                                                           'required': True}))
-    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control col-sm-6',
-                                                             'required': True}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control col-sm-6',
-                                                                 'required': True}))
-    confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control col-sm-6',
-                                                                         'required': True}))
+    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control col-sm-6'}))
+    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control col-sm-6'}))
+    email = forms.CharField(widget=forms.EmailInput(attrs={'class': 'form-control col-sm-6'}),
+                            validators=[validate_email])
+    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control col-sm-6'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control col-sm-6'}))
+    confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control col-sm-6'}))
 
     class Meta:
         model = Author
@@ -117,6 +125,12 @@ class RegistrationForm(forms.ModelForm):
             'confirm_password',
             'avatar'
         ]
+
+    def is_valid(self):
+        ret = forms.Form.is_valid(self)
+        for f in self.errors:
+            self.fields[f].widget.attrs.update({'class': self.fields[f].widget.attrs.get('class', '') + ' is-invalid'})
+        return ret
 
     def clean(self):
         confirm_password = self.cleaned_data.get('confirm_password')
@@ -143,12 +157,60 @@ class RegistrationForm(forms.ModelForm):
 
 
 class ProfileForm(forms.ModelForm):
+    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control col-sm-6'}))
+    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control col-sm-6'}))
+    email = forms.CharField(widget=forms.EmailInput(attrs={'class': 'form-control col-sm-6'}),
+                            validators=[validate_email])
+    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control col-sm-6'}))
+    password = forms.CharField(label='New password',
+                               widget=forms.PasswordInput(attrs={'class': 'form-control col-sm-6'}),
+                               required=False)
+    confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control col-sm-6'}),
+                                       required=False)
+
     class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'email', 'username']
-        widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control col-sm-6', 'readonly': True}),
-            'email': forms.EmailInput(attrs={'class': 'form-control col-sm-6', 'readonly': True}),
-            'first_name': forms.TextInput(attrs={'class': 'form-control col-sm-6', 'readonly': True}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control col-sm-6', 'readonly': True})
-        }
+        model = Author
+        fields = ['avatar']
+
+    field_order = [
+        'first_name',
+        'last_name',
+        'email',
+        'username',
+        'password',
+        'confirm_password',
+        'avatar'
+    ]
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.pop('instance', {})
+        super(ProfileForm, self).__init__(instance=instance.author, *args, **kwargs)
+        self.fields['first_name'].initial = instance.first_name
+        self.fields['last_name'].initial = instance.last_name
+        self.fields['email'].initial = instance.email
+        self.fields['username'].initial = instance.username
+
+    def is_valid(self):
+        ret = forms.Form.is_valid(self)
+        for f in self.errors:
+            self.fields[f].widget.attrs.update({'class': self.fields[f].widget.attrs.get('class', '') + ' is-invalid'})
+        return ret
+
+    def clean(self):
+        confirm_password = self.cleaned_data.get('confirm_password')
+        password = self.cleaned_data.get('password')
+
+        if password != confirm_password:
+            raise forms.ValidationError('Passwords do not match')
+
+    def save(self, commit=True):
+        author = super().save(commit=True)
+        user = author.user
+        user.first_name = self.cleaned_data.get('first_name')
+        user.last_name = self.cleaned_data.get('last_name')
+        user.email = self.cleaned_data.get('email')
+        user.username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+        if password:
+            user.set_password(password)
+        user.save(update_fields=['first_name', 'last_name', 'email', 'username', 'password'])
