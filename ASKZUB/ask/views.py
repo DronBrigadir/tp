@@ -152,10 +152,22 @@ def tag(request, tag_name):
     return render(request, 'tag.html', context)
 
 
-@login_required
-def profile(request):
-    form = ProfileForm(instance=request.user)
-    context = {
-        'form': form
-    }
-    return render(request, 'profile.html', context)
+class ProfileView(LoginRequiredMixin, View):
+    def get(self, request):
+        form = ProfileForm(instance=request.user)
+        context = {
+            'form': form
+        }
+        return render(request, 'profile.html', context)
+
+    def post(self, request):
+        form = ProfileForm(request.POST, request.FILES, instance=request.user)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('ask:profile'))
+        else:
+            context = {
+                'form': form
+            }
+            return render(request, 'profile.html', context)
