@@ -17,7 +17,7 @@
         {% include "includes/pagination.html" with items=answers %}
 
         <div class="row">
-            <form action="{% url 'ask:question' question_id=question.id %}" method="post">
+            <form action="{% url 'ask:question' question_id=question.id %}" novalidate method="post">
                 {% csrf_token %}
                 {% include "includes/render_form.html" %}
                 <button type="submit" class="btn btn-primary">Answer</button>

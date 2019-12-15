@@ -6,7 +6,7 @@
             <h2 class="text-center">New Question</h2>
         </div>
 
-        <form action="{% url 'ask:ask' %}" method="post" class="mt-2">
+        <form action="{% url 'ask:ask' %}" novalidate method="post" class="mt-2">
             {% csrf_token %}
             {% include "includes/render_form.html" %}
             <button type="submit" class="btn btn-primary">Ask</button>

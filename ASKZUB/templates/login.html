@@ -6,7 +6,7 @@
             <h2 class="text-center">Log in</h2>
         </div>
 
-        <form action="{% url 'ask:login' %}?next={{ next_url }}" method="post" class="mt-2">
+        <form action="{% url 'ask:login' %}?next={{ next_url }}" novalidate method="post" class="mt-2">
             {% csrf_token %}
             {% include "includes/render_form.html" %}
             <button type="submit" class="btn btn-primary">Log in</button>
