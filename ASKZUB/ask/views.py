@@ -19,7 +19,7 @@ def index(request):
         'questions_to_show': Question.objects.recent(page_number, limit),
         'questions_switcher': {
             'title': 'Hot Questions',
-            'href': '/hot'
+            'href': reverse('ask:hot')
         },
         'title': 'New Questions'
     }
@@ -33,7 +33,7 @@ def hot(request):
         'questions_to_show': Question.objects.hot(page_number, limit),
         'questions_switcher': {
             'title': 'New Questions',
-            'href': '/'
+            'href': reverse('ask:index')
         },
         'title': 'Hot Questions'
     }
