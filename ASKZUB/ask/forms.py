@@ -45,7 +45,9 @@ class QuestionForm(forms.ModelForm):
     def is_valid(self):
         ret = forms.Form.is_valid(self)
         for f in self.errors:
-            self.fields[f].widget.attrs.update({'class': self.fields[f].widget.attrs.get('class', '') + ' is-invalid'})
+            if f != "__all__":
+                self.fields[f].widget.attrs.update(
+                    {'class': self.fields[f].widget.attrs.get('class', '') + ' is-invalid'})
         return ret
 
     def save(self, commit=True):
@@ -91,7 +93,9 @@ class AnswerForm(forms.ModelForm):
     def is_valid(self):
         ret = forms.Form.is_valid(self)
         for f in self.errors:
-            self.fields[f].widget.attrs.update({'class': self.fields[f].widget.attrs.get('class', '') + ' is-invalid'})
+            if f != "__all__":
+                self.fields[f].widget.attrs.update(
+                    {'class': self.fields[f].widget.attrs.get('class', '') + ' is-invalid'})
         return ret
 
     def save(self, commit=True):
@@ -129,7 +133,9 @@ class RegistrationForm(forms.ModelForm):
     def is_valid(self):
         ret = forms.Form.is_valid(self)
         for f in self.errors:
-            self.fields[f].widget.attrs.update({'class': self.fields[f].widget.attrs.get('class', '') + ' is-invalid'})
+            if f != "__all__":
+                self.fields[f].widget.attrs.update(
+                    {'class': self.fields[f].widget.attrs.get('class', '') + ' is-invalid'})
         return ret
 
     def clean(self):
@@ -193,7 +199,9 @@ class ProfileForm(forms.ModelForm):
     def is_valid(self):
         ret = forms.Form.is_valid(self)
         for f in self.errors:
-            self.fields[f].widget.attrs.update({'class': self.fields[f].widget.attrs.get('class', '') + ' is-invalid'})
+            if f != "__all__":
+                self.fields[f].widget.attrs.update(
+                    {'class': self.fields[f].widget.attrs.get('class', '') + ' is-invalid'})
         return ret
 
     def clean(self):
