@@ -33,7 +33,7 @@ class QuestionManager(models.Manager):
             self.order_by('-rating').annotate(num_of_answers=Count('answer')), limit, page_number)
 
     def by_id(self, question_id):
-        return self.get(pk=question_id)
+        return self.annotate(num_of_answers=Count('answer')).get(pk=question_id)
 
     def questions_by_tag(self, tag_name, page_number, limit):
         t = Tag.objects.get(name=tag_name)
