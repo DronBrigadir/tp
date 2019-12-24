@@ -37,7 +37,7 @@ class QuestionManager(models.Manager):
 
     def questions_by_tag(self, tag_name, page_number, limit):
         t = Tag.objects.get(name=tag_name)
-        return paginator.paginate(self.filter(tag=t), limit, page_number)
+        return paginator.paginate(self.filter(tag=t).annotate(num_of_answers=Count('answer')), limit, page_number)
 
 
 class Question(models.Model):
