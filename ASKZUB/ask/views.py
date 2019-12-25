@@ -1,5 +1,7 @@
+import json
+
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout as django_logout
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -9,6 +11,7 @@ from django.views.generic import View
 from django.urls import reverse
 from ask.models import Tag, Author, Question
 from ask.utils.paginator import paginate
+from ask.utils.vote import add_vote
 from ask.forms import LoginForm, QuestionForm, AnswerForm, RegistrationForm, ProfileForm
 
 
@@ -38,6 +41,16 @@ def hot(request):
         'title': 'Hot Questions'
     }
     return render(request, 'index.html', context)
+
+
+@login_required
+def vote(request):
+    data = json.loads(request.body)
+    qid = data.get("qid")
+    uid = data.get("uid")
+    value = data.get("value")
+    cur_rating = add_vote(qid, uid, value)
+    return JsonResponse({"current_question_rating": cur_rating})
 
 
 class LoginView(View):

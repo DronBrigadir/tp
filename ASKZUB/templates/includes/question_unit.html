@@ -4,19 +4,27 @@
     </div>
     <div class="row m-2 border border-secondary">
         <div class="col-sm-6 border-right border-secondary">
-            <div class="text-center text">
+            <div class="text-center text" id="{{ question.id }}">
                 {{ question.rating }}
             </div>
         </div>
         <div class="col-sm-6">
             <div class="row">
-                <a class="mx-auto" href="#">
+                <a class="mx-auto"
+                   href="#"
+                   data-qid="{{ question.id }}"
+                   data-uid="{{ user.author.id }}"
+                   data-value="inc">
                     {% load staticfiles %}
                     <img src="{% static 'img/arrow-top.svg' %}" width="16">
                 </a>
             </div>
             <div class="row">
-                <a class="mx-auto" href="#">
+                <a class="mx-auto"
+                   href="#"
+                   data-qid="{{ question.id }}"
+                   data-uid="{{ user.author.id }}"
+                   data-value="dec">
                     <img src="{% static 'img/arrow-bottom.svg' %}" width="16">
                 </a>
             </div>
